@@ -1,0 +1,45 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("OTHER_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/other-client"
+}
+
+model Earning {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  amount     Float
+  createdAt  String
+  lead       String
+  modelId    String @db.ObjectId
+  percentage String
+  status     String
+  total      String
+  workerId   String @db.ObjectId
+}
+
+model Model {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  age         String
+  country     String
+  date        String
+  description String
+  drive       String
+  email       String
+  image       String
+  name        String   @unique
+  password    String
+  telegram    String
+  workers     String[]
+  earnings    String[]
+}
+
+model Worker {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  earnings String[]
+  modelId  String
+  name     String
+  profit   String
+}
