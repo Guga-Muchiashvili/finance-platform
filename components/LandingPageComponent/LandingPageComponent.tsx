@@ -2,9 +2,11 @@
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
 import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
-import { timePeriods } from "@/common/constants";
+import { Routes, timePeriods } from "@/common/constants";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import PaymentBoxElement from "./elements/PaymentBoxElement";
+import LoseBoxElement from "./elements/LoseBoxElement";
 
 export default function LandingPageComponent() {
   const [filter, setfilter] = useState<"overall" | "last Month" | "last Week">(
@@ -43,15 +45,19 @@ export default function LandingPageComponent() {
         <div className="flex h-full justify-center gap-4 w-full items-center">
           <div className="w-full bg-white h-full rounded-xl p-3">
             <h1 className="text-2xl">Money in</h1>
+            <h1 className="text-6xl mt-4">4,380$</h1>
           </div>
           <div className="w-full bg-white h-full rounded-xl p-3">
             <h1 className="text-2xl">Money Out</h1>
+            <h1 className="text-6xl mt-4">3,980$</h1>
           </div>
           <div className="w-full bg-white h-full rounded-xl p-3">
             <h1 className="text-2xl">Our share</h1>
+            <h1 className="text-6xl mt-4">2,041$</h1>
           </div>
           <div className="w-full bg-white h-full rounded-xl p-3">
             <h1 className="text-2xl"> Our share brought out</h1>
+            <h1 className="text-6xl mt-4">1,580$</h1>
           </div>
         </div>
       </div>
@@ -86,26 +92,30 @@ export default function LandingPageComponent() {
         <div className="flex justify-center gap-4 items-center">
           <div className="w-1/2 min-h-[30vh] bg-white rounded-xl p-3">
             <h1>All transaction</h1>
-            <div className="w-full h-52 overflow-y-scroll hide-scrollbar">
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+            <div className="w-full h-8 flex items-center justify-between px-7">
+              <h1 className="w-1/4 text-center">Type</h1>
+              <h1 className="w-1/4 text-center">Amount</h1>
+              <h1 className="w-1/4 text-center">Our Share</h1>
+              <h1 className="w-1/4 text-center">Status</h1>
+            </div>
+            <div className="w-full h-52 overflow-y-scroll hide-scrollbar pb-4">
+              {Routes.map((item) => (
+                <PaymentBoxElement key={item.route} />
+              ))}
             </div>
           </div>
           <div className="w-1/2 min-h-[30vh] bg-white rounded-xl p-3">
             <h1>Loses</h1>
+            <div className="w-full h-8 flex items-center justify-between px-7">
+              <h1 className="w-1/4 text-center">Reason</h1>
+              <h1 className="w-1/4 text-center">Type</h1>
+              <h1 className="w-1/4 text-center">Amount</h1>
+              <h1 className="w-1/4 text-center">Status</h1>
+            </div>
             <div className="w-full h-52 overflow-y-scroll hide-scrollbar">
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
-              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              {Routes.map((item) => (
+                <LoseBoxElement key={item.route} />
+              ))}
             </div>
           </div>
         </div>
