@@ -1,24 +1,115 @@
 "use client";
-import { fetchTransactions } from "@/actions/fetch/fetch";
-import { useEffect } from "react";
+import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
+import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
+import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
+import { timePeriods } from "@/common/constants";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function LandingPageComponent() {
-  useEffect(() => {
-    async function loadTransactions() {
-      try {
-        const data = await fetchTransactions();
-        console.log(data);
-      } catch (err) {
-        console.error("Failed to fetch transactions:", err);
-      }
-    }
-
-    loadTransactions();
-  }, []);
+  const [filter, setfilter] = useState<"overall" | "last Month" | "last Week">(
+    "overall"
+  );
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      hello
+    <div className="w-full flex flex-col gap-4 min-h-screen p-4 bg-gray-100">
+      <div className="w-full h-20 flex items-center justify-between">
+        <h1 className="text-4xl text-blue-600">Ai Agency / Dashboard</h1>
+        <div className={`w-fit flex items-center gap-2 flex-wrap`}>
+          {timePeriods.map((item, i) => (
+            <motion.h1
+              initial={{ opacity: 0, translateX: 10 }}
+              animate={{ opacity: 1, translateX: 0 }}
+              transition={{
+                duration: 1,
+                delay: i * 0.2,
+              }}
+              key={item}
+              className={`${
+                filter === item
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-blue-600"
+              } px-1 lg:px-3 py-[6px] rounded-xl cursor-pointer duration-500 font-bebas text-sm lg:text-xl`}
+              onClick={() =>
+                setfilter(item as "overall" | "last Month" | "last Week")
+              }
+            >
+              {item}
+            </motion.h1>
+          ))}
+        </div>
+      </div>
+      <div className="w-full h-[20vh] text-blue-600 flex flex-col gap-4">
+        <div className="flex h-full justify-center gap-4 w-full items-center">
+          <div className="w-full bg-white h-full rounded-xl p-3">
+            <h1 className="text-2xl">Money in</h1>
+          </div>
+          <div className="w-full bg-white h-full rounded-xl p-3">
+            <h1 className="text-2xl">Money Out</h1>
+          </div>
+          <div className="w-full bg-white h-full rounded-xl p-3">
+            <h1 className="text-2xl">Our share</h1>
+          </div>
+          <div className="w-full bg-white h-full rounded-xl p-3">
+            <h1 className="text-2xl"> Our share brought out</h1>
+          </div>
+        </div>
+      </div>
+      <div className="w-full h-1/2 flex flex-col gap-4">
+        <h1 className="text-2xl text-blue-600">sources of income</h1>
+        <div className="flex justify-center gap-4 items-center">
+          <div className="w-[35%]">
+            <BarChartComponent />
+          </div>
+          <div className="w-[33%]">
+            <PieChartComponent />
+          </div>
+          <div className="w-[30%]">
+            <LineChartComponent />
+          </div>
+        </div>
+      </div>
+      <div className="w-full flex flex-col gap-4">
+        <h1 className="text-2xl text-blue-600">Our incomes</h1>
+        <div className="flex justify-center gap-4 items-center">
+          <div className="w-[58%]">
+            <LineChartComponent />
+          </div>
+          <div className="w-[58%]">
+            <LineChartComponent />
+          </div>
+        </div>
+      </div>
+      <div className="w-full h-1/2 flex flex-col text-blue-600 gap-4">
+        <h1 className="text-2xl ">Transactions</h1>
+
+        <div className="flex justify-center gap-4 items-center">
+          <div className="w-1/2 min-h-[30vh] bg-white rounded-xl p-3">
+            <h1>All transaction</h1>
+            <div className="w-full h-52 overflow-y-scroll hide-scrollbar">
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+            </div>
+          </div>
+          <div className="w-1/2 min-h-[30vh] bg-white rounded-xl p-3">
+            <h1>Loses</h1>
+            <div className="w-full h-52 overflow-y-scroll hide-scrollbar">
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+              <div className="w-full h-12 rounded-xl mt-3 bg-white border-blue-600 border-[1px] bg-opacity-70"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

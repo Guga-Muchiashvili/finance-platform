@@ -31,8 +31,6 @@ const SignInComponent = () => {
 
     const isSignedIn = signIn(password);
 
-    console.log(isSignedIn);
-
     if (!isSignedIn) {
       setError(true);
       return;
