@@ -12,12 +12,16 @@ import {
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const BarChartComponent: React.FC = () => {
+interface IBarComponentProps {
+  chartData: number[];
+}
+
+const BarChartComponent: React.FC<IBarComponentProps> = ({ chartData }) => {
   const data = {
     labels: ["Models", "Discord", "Dropshipping"],
     datasets: [
       {
-        data: [3434, 280, 0],
+        data: chartData,
         backgroundColor: ["rgb(37,99,235)", "rgb(37,99,235)", "rgb(37,99,235)"],
         borderWidth: 1,
         borderRadius: 8,

@@ -7,9 +7,28 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Admin {
+model Source {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
   earnings String[]
   name     String
-  profit   String
-}
+  workers  String[]
+  }
+
+  model Transactions {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    workers      String[]
+    createdAt    String
+    status       String
+    total        String
+    percentage   String
+    amount       String
+  }
+
+  model Subscription {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    amount       String
+    reason       String
+    type         String
+    date         String
+    status       String
+  }

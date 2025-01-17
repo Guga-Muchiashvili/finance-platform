@@ -5,12 +5,16 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const PieChartComponent: React.FC = () => {
+interface PieChartProps {
+  chartData: number[] | undefined;
+}
+
+const PieChartComponent: React.FC<PieChartProps> = ({ chartData }) => {
   const data = {
     labels: ["Models", "Discord", "Dropshipping"],
     datasets: [
       {
-        data: [3434, 280, 1],
+        data: chartData,
         backgroundColor: [
           "rgb(37,99,235)",
           "rgba(54, 162, 235, 0.2)",
