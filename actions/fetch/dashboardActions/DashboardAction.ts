@@ -1,10 +1,10 @@
 "use server";
+import { Itransaction } from "@/common/types";
 import { otherPrisma } from "../../../common/lib/db";
 import { mainPrisma } from "../../../common/lib/db";
 
 export async function fetchDashboardData() {
   try {
-    console.log("here");
     const transactions = await otherPrisma.earning.findMany();
     const DiscordTransactions = await mainPrisma.transactions.findMany();
 
@@ -15,17 +15,10 @@ export async function fetchDashboardData() {
     let DiscoardAmount = 0;
     let ModelAmount = 0;
 
-    const allTransactions = [...transactions, ...DiscordTransactions] as {
-      id: string;
-      amount: number;
-      createdAt: string;
-      lead: string;
-      modelId: string;
-      percentage: string;
-      status: string;
-      total: string;
-      workerId: string;
-    }[];
+    const allTransactions = [
+      ...transactions,
+      ...DiscordTransactions,
+    ] as Itransaction[];
 
     const earnings = allTransactions
       .map((item) => ({
@@ -54,7 +47,6 @@ export async function fetchDashboardData() {
           (Number(item.total) / 100) * (100 - Number(item.percentage));
       }
     });
-    console.log(totalMoney);
     DiscordTransactions.forEach((item) => {
       DiscoardAmount += Number(item.total);
       totalMoney += Number(item.total);
