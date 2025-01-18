@@ -9,3 +9,13 @@ export interface Itransaction {
   total: string;
   workerId: string;
 }
+
+export interface INewTransaction {
+  id: string;
+  amount: string;
+  createdAt: string;
+  percentage: string;
+  status: string;
+  total: string;
+  workers: string[];
+}

@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import React from "react";
 import { Line } from "react-chartjs-2";
 import {
@@ -22,38 +21,28 @@ ChartJS.register(
   Legend
 );
 
-const LineChartComponent: React.FC = () => {
+// Define types for the props
+interface LineChartProps {
+  datas: { label: string; data: number[] }[] | undefined;
+  label: string[] | undefined;
+}
+
+const LineChartComponent: React.FC<LineChartProps> = ({ datas, label }) => {
+  const defaultData = [
+    { label: "Default Data", data: [10, 20, 30, 40, 50, 60] },
+  ];
+
   const data = {
-    labels: ["January", "February", "March", "April", "May", "June"],
-    datasets: [
-      {
-        label: "Models",
-        data: [140, 38, 1200, 750, 540, 1340],
-        borderColor: "rgb(37,99,235)",
-        backgroundColor: "rgb(37,99,235)",
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: "rgb(37,99,235)",
-      },
-      {
-        label: "Discord",
-        data: [0, 100, 120, 40, 23, 264],
-        borderColor: "rgb(37,99,235)",
-        backgroundColor: "rgb(37,99,235)",
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: "rgb(37,99,235)",
-      },
-      {
-        label: "Dropshipping",
-        data: [0, 120, 34, 3, 89, 104],
-        borderColor: "rgb(37,99,235)",
-        backgroundColor: "rgb(37,99,235)",
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: "rgb(37,99,235)",
-      },
-    ],
+    labels: label,
+    datasets: (datas || defaultData).map((item, i: number) => ({
+      label: item.label || "Default Label",
+      data: item.data || [0, 0, 0, 0, 0, 0],
+      borderColor: i == 0 ? "rgb(37,99,235)" : "#ee6c4d",
+      backgroundColor: i == 0 ? "rgb(37,99,235)" : "#ee6c4d",
+      borderWidth: 2,
+      pointRadius: 4,
+      pointBackgroundColor: i == 0 ? "rgb(37,99,235)" : "#ee6c4d",
+    })),
   };
 
   const options = {
@@ -61,7 +50,7 @@ const LineChartComponent: React.FC = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false,
+        display: true,
       },
       tooltip: {
         enabled: true,

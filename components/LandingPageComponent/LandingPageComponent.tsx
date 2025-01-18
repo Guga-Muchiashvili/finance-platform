@@ -2,7 +2,7 @@
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
 import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
-import { Routes, timePeriods } from "@/common/constants";
+import { timePeriods } from "@/common/constants";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import PaymentBoxElement from "./elements/PaymentBoxElement";
@@ -46,19 +46,19 @@ export default function LandingPageComponent() {
       </div>
       <div className="w-full h-[20vh] text-blue-600 flex flex-col gap-4">
         <div className="flex h-full justify-center gap-4 w-full items-center">
-          <div className="w-full bg-white h-full rounded-xl p-3">
+          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
             <h1 className="text-2xl">Money in</h1>
             <h1 className="text-6xl mt-4">{data?.MoneyIn}$</h1>
           </div>
-          <div className="w-full bg-white h-full rounded-xl p-3">
+          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
             <h1 className="text-2xl">Money Out</h1>
             <h1 className="text-6xl mt-4">{data?.moneyOut}$</h1>
           </div>
-          <div className="w-full bg-white h-full rounded-xl p-3">
+          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
             <h1 className="text-2xl">Our share</h1>
             <h1 className="text-6xl mt-4">{data?.OurShare}$</h1>
           </div>
-          <div className="w-full bg-white h-full rounded-xl p-3">
+          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
             <h1 className="text-2xl"> Our share brought out</h1>
             <h1 className="text-6xl mt-4">{data?.MoneyOutOurShare}$</h1>
           </div>
@@ -74,7 +74,10 @@ export default function LandingPageComponent() {
             <PieChartComponent chartData={data?.chartData as number[]} />
           </div>
           <div className="w-[30%]">
-            <LineChartComponent />
+            <LineChartComponent
+              label={data?.labels}
+              datas={data?.chartMonthlyData}
+            />
           </div>
         </div>
       </div>
@@ -82,18 +85,23 @@ export default function LandingPageComponent() {
         <h1 className="text-2xl text-blue-600">Our incomes</h1>
         <div className="flex justify-center gap-4 items-center">
           <div className="w-[58%]">
-            <LineChartComponent />
+            <LineChartComponent
+              label={data?.labels}
+              datas={data?.ourShareChart}
+            />
           </div>
           <div className="w-[58%]">
-            <LineChartComponent />
+            <LineChartComponent
+              label={data?.labels}
+              datas={data?.totalOurShareChart}
+            />
           </div>
         </div>
       </div>
       <div className="w-full h-1/2 flex flex-col text-blue-600 gap-4">
         <h1 className="text-2xl ">Transactions</h1>
-
         <div className="flex justify-center gap-4 items-center">
-          <div className="w-1/2 min-h-[30vh] bg-white rounded-xl p-3">
+          <div className="w-1/2 min-h-fit bg-white rounded-xl p-3">
             <h1>All transaction</h1>
             <div className="w-full h-8 flex items-center justify-between px-7">
               <h1 className="w-1/4 text-center">Type</h1>
@@ -102,21 +110,24 @@ export default function LandingPageComponent() {
               <h1 className="w-1/4 text-center">Date</h1>
               <h1 className="w-1/4 text-center">Status</h1>
             </div>
-            <div className="w-full h-52 overflow-y-scroll hide-scrollbar pb-4">
-              {data?.earnings.map((item) => (
-                <PaymentBoxElement
-                  key={item.id}
-                  amount={item.amount}
-                  date={item.date}
-                  ourShare={item.ourShare}
-                  status={item.status}
-                  type={item.type}
-                />
-              ))}
+            <div className="w-full h-72 overflow-y-scroll hide-scrollbar pb-4">
+              {data?.earnings
+                .slice()
+                .reverse()
+                .map((item) => (
+                  <PaymentBoxElement
+                    key={item.id}
+                    amount={item.amount}
+                    date={item.date}
+                    ourShare={item.ourShare}
+                    status={item.status}
+                    type={item.type}
+                  />
+                ))}
             </div>
           </div>
-          <div className="w-1/2 min-h-[30vh] bg-white rounded-xl p-3">
-            <h1>Loses</h1>
+          <div className="w-1/2 min-h-fit bg-white rounded-xl p-3">
+            <h1>Subscriptions</h1>
             <div className="w-full h-8 flex items-center justify-between px-7">
               <h1 className="w-1/4 text-center">Reason</h1>
               <h1 className="w-1/4 text-center">Type</h1>
@@ -124,9 +135,9 @@ export default function LandingPageComponent() {
               <h1 className="w-1/4 text-center">Date</h1>
               <h1 className="w-1/4 text-center">Status</h1>
             </div>
-            <div className="w-full h-52 overflow-y-scroll hide-scrollbar pb-4">
-              {Routes.map((item) => (
-                <LoseBoxElement key={item.route} />
+            <div className="w-full h-72 overflow-y-scroll hide-scrollbar pb-4">
+              {data?.subscriptions.map((item) => (
+                <LoseBoxElement key={item.id} />
               ))}
             </div>
           </div>

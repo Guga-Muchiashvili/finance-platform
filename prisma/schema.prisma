@@ -12,6 +12,7 @@ model Source {
   earnings String[]
   name     String
   workers  String[]
+  
   }
 
   model Transactions {
