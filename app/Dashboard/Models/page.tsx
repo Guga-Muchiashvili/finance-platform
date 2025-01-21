@@ -1,7 +1,8 @@
-import React from "react";
+"use server";
+import ModelsDashboard from "@/components/ModelsDashboardComponent/ModelsDashboard";
 
 const page = () => {
-  return <div>page</div>;
+  return <ModelsDashboard />;
 };
 
 export default page;
