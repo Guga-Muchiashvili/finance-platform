@@ -1,7 +1,7 @@
 import React from "react";
 
 const ModelCardElement = () => {
-  return <div>ModelCardElement</div>;
+  return <div></div>;
 };
 
 export default ModelCardElement;

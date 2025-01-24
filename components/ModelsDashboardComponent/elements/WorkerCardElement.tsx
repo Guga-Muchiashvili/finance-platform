@@ -1,7 +1,7 @@
 import React from "react";
 
 const WorkerCardElement = () => {
-  return <div>WorkerCardElement</div>;
+  return <div></div>;
 };
 
 export default WorkerCardElement;

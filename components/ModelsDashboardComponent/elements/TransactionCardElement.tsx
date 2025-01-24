@@ -1,7 +1,7 @@
 import React from "react";
 
 const TransactionCardElement = () => {
-  return <div>TransactionCardElement</div>;
+  return <div></div>;
 };
 
 export default TransactionCardElement;
