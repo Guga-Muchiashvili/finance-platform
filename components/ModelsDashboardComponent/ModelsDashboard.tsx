@@ -3,20 +3,23 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { timePeriods } from "@/common/constants";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
-import { useGetDashboardData } from "@/queries/useGetDashboardData/useGetDashboardData";
+import { useGetModelDashboardData } from "@/queries/useGetModelDashboardData/useGetModelDashboardData";
 
 const ModelsDashboard = () => {
-  const [filter, setfilter] = useState<"overall" | "last Month" | "last Week">(
+  const [filter, setFilter] = useState<"overall" | "last Month" | "last Week">(
     "overall"
   );
+  const { data: DashboardData } = useGetModelDashboardData();
 
-  const { data } = useGetDashboardData();
+  const labels = DashboardData?.workerChartData[0]?.data.map((_, index) => {
+    return `${index}`;
+  });
 
   return (
     <div className="w-full flex flex-col gap-4 min-h-screen text-blue-600 p-4 bg-gray-100">
       <div className="w-full h-20 flex items-center justify-between">
         <h1 className="text-4xl text-blue-600">Ai Agency / Models</h1>
-        <div className={`w-fit flex items-center gap-2 flex-wrap`}>
+        <div className="w-fit flex items-center gap-2 flex-wrap">
           {timePeriods.map((item, i) => (
             <motion.h1
               initial={{ opacity: 0, translateX: 10 }}
@@ -30,9 +33,9 @@ const ModelsDashboard = () => {
                 filter === item
                   ? "bg-blue-600 text-white"
                   : "bg-white text-blue-600"
-              } px-1 lg:px-3 py-[6px] rounded-xl cursor-pointer duration-500 font-bebas text-sm lg:text-xl`}
+              } px-3 py-2 rounded-xl cursor-pointer duration-500 font-bebas text-xl`}
               onClick={() =>
-                setfilter(item as "overall" | "last Month" | "last Week")
+                setFilter(item as "overall" | "last Month" | "last Week")
               }
             >
               {item}
@@ -40,105 +43,139 @@ const ModelsDashboard = () => {
           ))}
         </div>
       </div>
-      <div className="w-full h-[20vh] text-blue-600 flex flex-col gap-4">
-        <div className="flex h-full justify-center gap-4 w-full items-center">
-          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
-            <h1 className="text-2xl">Money in</h1>
-            <h1 className="text-6xl mt-4">1,890$</h1>
-          </div>
-          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
-            <h1 className="text-2xl">Money Out</h1>
-            <h1 className="text-6xl mt-4">1,340$</h1>
-          </div>
-          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
-            <h1 className="text-2xl">Our share</h1>
-            <h1 className="text-6xl mt-4">967$</h1>
-          </div>
-          <div className="w-full bg-white h-fit py-8 rounded-xl p-3">
-            <h1 className="text-2xl"> Our share brought out</h1>
-            <h1 className="text-6xl mt-4">798$</h1>
-          </div>
+
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Money In</h1>
+          <h1 className="text-6xl mt-4">{DashboardData?.moneyIn}$</h1>
+        </div>
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Money Out</h1>
+          <h1 className="text-6xl mt-4">{DashboardData?.moneyOut}$</h1>
+        </div>
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Our Share</h1>
+          <h1 className="text-6xl mt-4">{DashboardData?.ourShare}$</h1>
+        </div>
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Our Share Brought Out</h1>
+          <h1 className="text-6xl mt-4">
+            {DashboardData?.ourShareBroughtOut}$
+          </h1>
         </div>
       </div>
+
       <div className="w-full flex flex-col gap-4">
         <h1 className="text-2xl text-blue-600">Models incomes</h1>
-        <div className="flex justify-center h-[50vh] gap-4 items-center">
-          <div className="w-[58%]">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="w-full md:w-[58%]">
             <LineChartComponent
-              label={data?.labels}
-              datas={data?.ourShareChart}
+              label={labels}
+              datas={DashboardData?.modelChartData}
             />
           </div>
-          <div className="w-[58%] h-full">
-            <div className="w-full bg-white h-full py-4 rounded-xl p-3">
-              <div className="w-full h-full flex justify-between">
-                <h1 className="text-2xl">Models</h1>
-                <button className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl">
-                  Add Models
-                </button>
-              </div>
+          <div className="w-full md:w-[58%] bg-white rounded-xl p-3 shadow">
+            <div className="flex justify-between mb-2">
+              <h1 className="text-2xl">Models</h1>
+              <button className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl">
+                Add Model
+              </button>
+            </div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DashboardData?.models.map((item) => (
+                <div
+                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  {item.name}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-      <div className="w-full flex flex-col gap-4 h-[50vh]">
-        <h1 className="text-2xl text-blue-600">Models incomes</h1>
-        <div className="flex justify-center gap-4 items-center">
-          <div className="w-[58%]">
+
+      <div className="w-full flex flex-col gap-4">
+        <h1 className="text-2xl text-blue-600">Workers incomes</h1>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="w-full md:w-[58%]">
             <LineChartComponent
-              label={data?.labels}
-              datas={data?.ourShareChart}
+              label={labels}
+              datas={DashboardData?.workerChartData}
             />
           </div>
-          <div className="w-[58%] h-full">
-            <div className="w-full bg-white h-full py-4 rounded-xl p-3">
-              <div className="w-full h-full flex justify-between">
-                <h1 className="text-2xl">Models</h1>
-                <button className="bg-blue-600 h-10 text-white rounded-xl px-3 py-1 text-xl">
-                  Add Models
-                </button>
-              </div>
+          <div className="w-full md:w-[58%] bg-white rounded-xl p-3 shadow">
+            <div className="flex justify-between mb-2">
+              <h1 className="text-2xl">Workers</h1>
+              <button className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl">
+                Add Worker
+              </button>
+            </div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DashboardData?.workers.map((item) => (
+                <div
+                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  {item.name}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-      <div className="gap-4 h-[50vh] mt-14">
-        <h1 className="text-2xl text-blue-600">Models incomes</h1>
-        <div className="flex gap-4 h-full mt-3">
-          <div className="w-full bg-white h-full py-4 rounded-xl p-3">
-            <div className="w-full h-fit flex justify-between">
+
+      <div className="w-full flex flex-col gap-4 mt-14">
+        <h1 className="text-2xl text-blue-600">All transactions</h1>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
+            <div className="flex justify-between">
               <h1 className="text-2xl">Transactions</h1>
               <button className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl">
-                Add Models
+                Add Transaction
               </button>
             </div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DashboardData?.transactions.map((item) => (
+                <div
+                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  {item.createdAt}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="w-full bg-white h-full py-4 rounded-xl p-3">
-            <div className="w-full h-fit flex justify-between">
-              <h1 className="text-2xl">Looses</h1>
+          <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
+            <div className="flex justify-between">
+              <h1 className="text-2xl">Losses</h1>
               <button className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl">
-                Add Transactions
+                Add Losses
               </button>
             </div>
           </div>
         </div>
       </div>
-      <div className="w-full h-[10vh] mt-12 rounded-xl text-xl text-blue-600 bg-white flex items-center justify-between p-4">
+
+      <div className="w-full h-[10vh] mt-12 rounded-xl text-xl text-blue-600 bg-white flex items-center justify-between p-4 shadow">
         <h1>
-          platform : <a href="https://ai-agency-xi.vercel.app/"> Click Here</a>
-        </h1>
-        <h1>
-          Drive:{" "}
-          <a href="https://drive.google.com/drive/folders/19GEHMTZutvwSMlcUuD5jJM3fzDsuiM8_?dmr=1&ec=wgc-drive-hero-goto">
+          Platform:{" "}
+          <a href="https://ai-agency-xi.vercel.app/" className="underline">
             Click Here
           </a>
         </h1>
-        <h1>Our Share : 40%</h1>
-        <h1>Workers : 7</h1>
-        <h1>Models : 3</h1>
-        <h1 className="text-white bg-blue-600 px-6 py-1 rounded-xl cursor-pointer">
-          Credentials
+        <h1>
+          Drive:{" "}
+          <a href="https://drive.google.com" className="underline">
+            Click Here
+          </a>
         </h1>
+        <h1>Our Share: 40%</h1>
+        <h1>Workers: 7</h1>
+        <h1>Models: 3</h1>
+        <button className="text-white bg-blue-600 px-6 py-1 rounded-xl cursor-pointer">
+          Credentials
+        </button>
       </div>
     </div>
   );

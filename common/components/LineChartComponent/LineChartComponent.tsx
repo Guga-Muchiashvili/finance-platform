@@ -21,11 +21,24 @@ ChartJS.register(
   Legend
 );
 
-// Define types for the props
 interface LineChartProps {
   datas: { label: string; data: number[] }[] | undefined;
   label: string[] | undefined;
 }
+
+const colorPalette = [
+  "rgb(37,99,235)", // Blue
+  "#ee6c4d", // Red
+  "#3f51b5", // Indigo
+  "#4caf50", // Green
+  "#00bcd4", // Cyan
+  "#ff9800", // Orange
+  "#9c27b0", // Purple
+  "#ff5722", // Deep Orange
+  "#607d8b", // Blue Grey
+  "#8bc34a", // Light Green
+  "#f44336", // Red
+];
 
 const LineChartComponent: React.FC<LineChartProps> = ({ datas, label }) => {
   const defaultData = [
@@ -34,17 +47,21 @@ const LineChartComponent: React.FC<LineChartProps> = ({ datas, label }) => {
 
   const data = {
     labels: label,
-    datasets: (datas || defaultData).map((item, i: number) => ({
-      label: item.label || "Default Label",
-      data: item.data || [0, 0, 0, 0, 0, 0],
-      borderColor: i == 0 ? "rgb(37,99,235)" : "#ee6c4d",
-      backgroundColor: i == 0 ? "rgb(37,99,235)" : "#ee6c4d",
-      borderWidth: 2,
-      pointRadius: 4,
-      pointBackgroundColor: i == 0 ? "rgb(37,99,235)" : "#ee6c4d",
-    })),
-  };
+    datasets: (datas || defaultData).map((item, i: number) => {
+      const colorIndex = i % colorPalette.length;
+      const color = colorPalette[colorIndex];
 
+      return {
+        label: item.label || "Default Label",
+        data: item.data || [0, 0, 0, 0, 0, 0],
+        borderColor: color,
+        backgroundColor: color,
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: color,
+      };
+    }),
+  };
   const options = {
     responsive: true,
     maintainAspectRatio: false,
