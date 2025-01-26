@@ -14,11 +14,15 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 interface IBarComponentProps {
   chartData: number[];
+  label: string[];
 }
 
-const BarChartComponent: React.FC<IBarComponentProps> = ({ chartData }) => {
+const BarChartComponent: React.FC<IBarComponentProps> = ({
+  chartData,
+  label,
+}) => {
   const data = {
-    labels: ["Models", "Discord", "Dropshipping"],
+    labels: label,
     datasets: [
       {
         data: chartData,

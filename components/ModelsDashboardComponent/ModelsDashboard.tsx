@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { timePeriods } from "@/common/constants";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
 import { useGetModelDashboardData } from "@/queries/useGetModelDashboardData/useGetModelDashboardData";
+import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
+import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
 
 const ModelsDashboard = () => {
   const [filter, setFilter] = useState<"overall" | "last Month" | "last Week">(
@@ -14,6 +16,19 @@ const ModelsDashboard = () => {
   const labels = DashboardData?.workerChartData[0]?.data.map((_, index) => {
     return `${index}`;
   });
+
+  const ModelLabels =
+    DashboardData?.ModelsPieData?.map((data) => `${data.label}`) || [];
+  const WorkersLabel =
+    DashboardData?.WorkersPieData?.map((data) => `${data.label}`) || [];
+  const MonthBarLabels =
+    DashboardData?.moneyByMonth?.map((data) => `${data.label}`) || [];
+  const ModelData =
+    DashboardData?.ModelsPieData?.map((data) => Number(data.value)) || [];
+  const WorkersData =
+    DashboardData?.WorkersPieData?.map((data) => Number(data.value)) || [];
+  const MonthBarData =
+    DashboardData?.moneyByMonth?.map((data) => Number(data.value)) || [];
 
   return (
     <div className="w-full flex flex-col gap-4 min-h-screen text-blue-600 p-4 bg-gray-100">
@@ -65,6 +80,47 @@ const ModelsDashboard = () => {
         </div>
       </div>
 
+      <div className="w-full flex flex-col gap-4">
+        <h1 className="text-2xl text-blue-600">Models incomes</h1>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="w-full md:w-1/3">
+            <BarChartComponent
+              label={MonthBarLabels}
+              chartData={MonthBarData}
+            />
+          </div>
+          <div className="w-full md:w-1/3">
+            <PieChartComponent label={ModelLabels} chartData={ModelData} />
+          </div>
+          <div className="w-full md:w-1/3">
+            <PieChartComponent label={WorkersLabel} chartData={WorkersData} />
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-4 mt-10">
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Transaction Fees</h1>
+          <h1 className="text-6xl mt-4">
+            {DashboardData?.totalTransactionFee}$
+          </h1>
+        </div>
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Average Transaction</h1>
+          <h1 className="text-6xl mt-4">
+            {DashboardData?.averageTransactionTotal}$
+          </h1>
+        </div>
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Transaction Record</h1>
+          <h1 className="text-6xl mt-4">
+            {DashboardData?.maxTransactionTotal}$
+          </h1>
+        </div>
+        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
+          <h1 className="text-2xl">Streak</h1>
+          <h1 className="text-6xl mt-4">{DashboardData?.streak} day</h1>
+        </div>
+      </div>
       <div className="w-full flex flex-col gap-4">
         <h1 className="text-2xl text-blue-600">Models incomes</h1>
         <div className="flex flex-col md:flex-row gap-4">

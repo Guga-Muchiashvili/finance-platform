@@ -7,23 +7,38 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface PieChartProps {
   chartData: number[] | undefined;
+  label: string[];
 }
 
-const PieChartComponent: React.FC<PieChartProps> = ({ chartData }) => {
+const PieChartComponent: React.FC<PieChartProps> = ({ chartData, label }) => {
   const data = {
-    labels: ["Models", "Discord", "Dropshipping"],
+    labels: label,
     datasets: [
       {
         data: chartData,
         backgroundColor: [
-          "rgb(37,99,235)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(255, 206, 86, 0.2)",
+          "rgb(37,99,235)", // Blue
+          "rgba(54, 162, 235, 0.2)", // Light Blue
+          "rgba(255, 206, 86, 0.2)", // Yellow
+          "rgb(75, 192, 192)", // Teal
+          "rgb(153, 102, 255)", // Purple
+          "rgb(255, 159, 64)", // Orange
+          "rgb(255, 99, 132)", // Red
+          "rgb(255, 193, 7)", // Yellow-Green
+          "rgb(0, 123, 255)", // Navy Blue
+          "rgb(40, 167, 69)", // Green
         ],
         borderColor: [
-          "rgb(37,99,235)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
+          "rgb(37,99,235)", // Blue
+          "rgba(54, 162, 235, 1)", // Light Blue
+          "rgba(255, 206, 86, 1)", // Yellow
+          "rgb(75, 192, 192)", // Teal
+          "rgb(153, 102, 255)", // Purple
+          "rgb(255, 159, 64)", // Orange
+          "rgb(255, 99, 132)", // Red
+          "rgb(255, 193, 7)", // Yellow-Green
+          "rgb(0, 123, 255)", // Navy Blue
+          "rgb(40, 167, 69)", // Green
         ],
         borderWidth: 1,
       },

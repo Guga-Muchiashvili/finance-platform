@@ -35,8 +35,26 @@ export const getModelDashboardData = async () => {
       }, 0)
       .toFixed(1);
 
-    const allIntervals: string[] = [];
+    const monthlyTransactions: Record<string, number> = {};
+    const transactionFees = earnings.map((earning) => {
+      const transactionFee =
+        parseFloat(String(earning.amount)) - parseFloat(earning.total);
+      const date = new Date(earning.createdAt.split("/").reverse().join("-"));
+      const monthKey = date
+        .toLocaleString("en-US", { month: "long" })
+        .toLowerCase();
+      if (!monthlyTransactions[monthKey]) {
+        monthlyTransactions[monthKey] = 0;
+      }
+      monthlyTransactions[monthKey] += parseFloat(earning.total);
+      return transactionFee;
+    });
 
+    const totalTransactionFee = transactionFees
+      .reduce((sum, fee) => sum + fee, 0)
+      .toFixed(1);
+
+    const allIntervals: string[] = [];
     earnings.forEach((earning) => {
       const date = new Date(earning.createdAt.split("/").reverse().join("-"));
       let key;
@@ -133,6 +151,75 @@ export const getModelDashboardData = async () => {
       };
     });
 
+    const modelTransaction = await Promise.all(
+      models.map(async (model) => {
+        const modelEarnings = await otherPrisma.earning.findMany({
+          where: { modelId: model.id },
+        });
+        const totalEarnings = modelEarnings.reduce(
+          (sum, earning) => sum + parseFloat(earning.total || "0"),
+          0
+        );
+
+        return {
+          label: model.name,
+          value: totalEarnings.toFixed(1),
+        };
+      })
+    );
+
+    const workerTransaction = await Promise.all(
+      workers.map(async (worker) => {
+        const workerEarnings = await otherPrisma.earning.findMany({
+          where: { workerId: worker.id },
+        });
+        const totalEarnings = workerEarnings.reduce(
+          (sum, earning) => sum + parseFloat(earning.total || "0"),
+          0
+        );
+
+        return {
+          label: worker.name,
+          value: totalEarnings.toFixed(1),
+        };
+      })
+    );
+
+    const transactionTotals = earnings.map((earning) =>
+      parseFloat(earning.total)
+    );
+
+    const maxTransactionTotal = Math.max(...transactionTotals).toFixed(1);
+
+    const averageTransactionTotal = (
+      transactionTotals.reduce((sum, total) => sum + total, 0) /
+      transactionTotals.length
+    ).toFixed(1);
+
+    const transactionDates = earnings
+      .map((earning) =>
+        new Date(
+          earning.createdAt.split("/").reverse().join("-")
+        ).toDateString()
+      )
+      .sort();
+
+    let streak = 1;
+    let currentStreak = 1;
+    for (let i = 1; i < transactionDates.length; i++) {
+      if (
+        new Date(transactionDates[i]).getTime() -
+          new Date(transactionDates[i - 1]).getTime() ===
+        86400000
+      ) {
+        currentStreak++;
+      } else {
+        streak = Math.max(streak, currentStreak);
+        currentStreak = 1;
+      }
+    }
+    streak = Math.max(streak, currentStreak);
+
     return {
       moneyIn,
       moneyOut,
@@ -143,6 +230,16 @@ export const getModelDashboardData = async () => {
       models,
       modelChartData,
       workerChartData,
+      monthlyTransactions,
+      totalTransactionFee,
+      ModelsPieData: modelTransaction,
+      WorkersPieData: workerTransaction,
+      moneyByMonth: Object.entries(monthlyTransactions).map(
+        ([month, value]) => ({ label: month, value: value.toFixed(1) })
+      ),
+      maxTransactionTotal,
+      averageTransactionTotal,
+      streak,
     };
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
