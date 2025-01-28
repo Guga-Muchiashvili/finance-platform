@@ -20,3 +20,10 @@ export const modelSchema = yup.object().shape({
   workers: yup.array().of(yup.string().required()),
   earnings: yup.array().of(yup.string().required()),
 });
+
+export const workerSchema = yup.object().shape({
+  earnings: yup.array().of(yup.string().required()),
+  modelId: yup.string().required("Model is required"),
+  name: yup.string().required("name is required"),
+  profit: yup.string().required("profit is required"),
+});

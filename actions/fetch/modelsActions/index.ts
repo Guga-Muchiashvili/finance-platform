@@ -1,5 +1,5 @@
 "use server";
-import { IFormModel } from "@/common/types";
+import { IFormModel, IFormWorker } from "@/common/types";
 import { otherPrisma } from "../../../common/lib/db";
 
 export const getModelDashboardData = async () => {
@@ -325,6 +325,31 @@ export async function editModel(
     return updatedModel;
   } catch (error) {
     console.error("Error editing model:", error);
+    throw error;
+  }
+}
+
+export async function editWorker(
+  id: string,
+  updatedData: IFormWorker
+): Promise<IFormWorker> {
+  try {
+    const workerToEdit = await otherPrisma.worker.findUnique({
+      where: { id },
+    });
+
+    if (!workerToEdit) {
+      throw new Error(`Worker with ID ${id} not found.`);
+    }
+
+    const updatedWorker = await otherPrisma.worker.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedWorker;
+  } catch (error) {
+    console.error("Error editing worker:", error);
     throw error;
   }
 }

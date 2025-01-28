@@ -1,15 +1,18 @@
-"use client";
-import { IFormModel } from "@/common/types";
+import { IFormModel, IFormWorker } from "@/common/types";
 import React from "react";
-import { FormProvider, UseFormReturn } from "react-hook-form";
+import { FormProvider, UseFormReturn, FieldValues } from "react-hook-form";
 
-export interface FormComponentProps {
+export interface FormComponentProps<T extends FieldValues> {
   children: React.ReactNode;
-  methods: UseFormReturn<IFormModel>;
+  methods: UseFormReturn<T>;
   submit: React.FormEventHandler<HTMLFormElement>;
 }
 
-const FormComponent = ({ children, methods, submit }: FormComponentProps) => {
+const FormComponent = <T extends IFormModel | IFormWorker>({
+  children,
+  methods,
+  submit,
+}: FormComponentProps<T>) => {
   return (
     <FormProvider {...methods}>
       <form onSubmit={submit}>{children}</form>

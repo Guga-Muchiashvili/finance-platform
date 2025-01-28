@@ -9,6 +9,7 @@ import PieChartComponent from "@/common/components/PieChartComponent/PieChartCom
 import { useRouter } from "next/navigation";
 import useDeleteModelMutation from "@/mutations/ModelMutations/DeleteModel";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import useDeleteWorker from "@/mutations/ModelMutations/DeleteWorker";
 
 const ModelsDashboard = () => {
   const [filter, setFilter] = useState<"overall" | "last Month" | "last Week">(
@@ -22,6 +23,7 @@ const ModelsDashboard = () => {
   });
 
   const { mutate: deleteModel } = useDeleteModelMutation();
+  const { mutate: deleteWorker } = useDeleteWorker();
 
   const ModelLabels =
     DashboardData?.ModelsPieData?.map((data) => `${data.label}`) || [];
@@ -36,27 +38,38 @@ const ModelsDashboard = () => {
   const MonthBarData =
     DashboardData?.moneyByMonth?.map((data) => Number(data.value)) || [];
 
-  // State for showing the confirmation modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
+  const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
 
-  // Open confirmation modal
-  const handleDeleteClick = (modelId: string) => {
+  const handleDeleteModelClick = (modelId: string) => {
     setSelectedModelId(modelId);
-    setIsModalOpen(true);
+    setIsModelModalOpen(true);
   };
 
-  // Confirm deletion
-  const handleConfirmDelete = () => {
+  const handleDeleteWorkerClick = (workerId: string) => {
+    setSelectedWorkerId(workerId);
+    setIsWorkerModalOpen(true);
+  };
+
+  const handleConfirmModelDelete = () => {
     if (selectedModelId) {
-      deleteModel(selectedModelId); // Perform deletion
+      deleteModel(selectedModelId);
     }
-    setIsModalOpen(false);
+    setIsModelModalOpen(false);
   };
 
-  // Cancel deletion
+  const handleConfirmWorkerDelete = () => {
+    if (selectedWorkerId) {
+      deleteWorker(selectedWorkerId);
+    }
+    setIsWorkerModalOpen(false);
+  };
+
   const handleCancelDelete = () => {
-    setIsModalOpen(false);
+    setIsModelModalOpen(false);
+    setIsWorkerModalOpen(false);
   };
 
   return (
@@ -127,31 +140,6 @@ const ModelsDashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mt-10">
-        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
-          <h1 className="text-2xl">Transaction Fees</h1>
-          <h1 className="text-6xl mt-4">
-            {DashboardData?.totalTransactionFee}$
-          </h1>
-        </div>
-        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
-          <h1 className="text-2xl">Average Transaction</h1>
-          <h1 className="text-6xl mt-4">
-            {DashboardData?.averageTransactionTotal}$
-          </h1>
-        </div>
-        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
-          <h1 className="text-2xl">Transaction Record</h1>
-          <h1 className="text-6xl mt-4">
-            {DashboardData?.maxTransactionTotal}$
-          </h1>
-        </div>
-        <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
-          <h1 className="text-2xl">Streak</h1>
-          <h1 className="text-6xl mt-4">{DashboardData?.streak} day</h1>
-        </div>
-      </div>
-
       <div className="w-full flex flex-col gap-4">
         <h1 className="text-2xl text-blue-600">Models incomes</h1>
         <div className="flex flex-col md:flex-row gap-4">
@@ -179,12 +167,12 @@ const ModelsDashboard = () => {
                 >
                   {item.name}
                   <FaEdit
-                    className="text-green-600  absolute right-9 cursor-pointer"
+                    className="text-green-600 absolute right-9 cursor-pointer"
                     onClick={() => route.push(`Models/Edit/${item.id}`)}
                   />
                   <FaTrash
                     className="text-red-500 absolute right-3 cursor-pointer"
-                    onClick={() => handleDeleteClick(item.id)} // Open the modal
+                    onClick={() => handleDeleteModelClick(item.id)}
                   />
                 </div>
               ))}
@@ -205,17 +193,28 @@ const ModelsDashboard = () => {
           <div className="w-full md:w-[58%] bg-white rounded-xl p-3 shadow">
             <div className="flex justify-between mb-2">
               <h1 className="text-2xl">Workers</h1>
-              <button className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl">
+              <button
+                className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl"
+                onClick={() => route.push("/Dashboard/Models/Worker/create")}
+              >
                 Add Worker
               </button>
             </div>
             <div className="h-[40vh] overflow-y-auto hide-scrollbar">
               {DashboardData?.workers.map((item) => (
                 <div
-                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  className="w-full h-20 mt-4 flex relative items-center border-[1px] shadow-lg rounded-xl p-3"
                   key={item.id}
                 >
                   {item.name}
+                  <FaEdit
+                    className="text-green-600 absolute right-9 cursor-pointer"
+                    onClick={() => route.push(`Models/Worker/edit/${item.id}`)}
+                  />
+                  <FaTrash
+                    className="text-red-500 absolute right-3 cursor-pointer"
+                    onClick={() => handleDeleteWorkerClick(item.id)}
+                  />
                 </div>
               ))}
             </div>
@@ -246,15 +245,24 @@ const ModelsDashboard = () => {
           </div>
           <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
             <div className="flex justify-between">
-              <h1 className="text-2xl">Losses</h1>
+              <h1 className="text-2xl">Expenses</h1>
               <button className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl">
-                Add Losses
+                Add Expense
               </button>
+            </div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DashboardData?.transactions.map((item) => (
+                <div
+                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  {item.createdAt}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-
       <div className="w-full h-[10vh] mt-12 rounded-xl text-xl text-blue-600 bg-white flex items-center justify-between p-4 shadow">
         <h1>
           Platform:{" "}
@@ -269,27 +277,52 @@ const ModelsDashboard = () => {
           </a>
         </h1>
         <h1>Our Share: 40%</h1>
-        <h1>Workers: 7</h1>
-        <h1>Models: 3</h1>
+        <h1>Workers: {DashboardData?.workers.length}</h1>
+        <h1>Models: {DashboardData?.models.length}</h1>
         <button className="text-white bg-blue-600 px-6 py-1 rounded-xl cursor-pointer">
           Credentials
         </button>
       </div>
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white px-6 py-3 rounded-xl shadow-lg w-fit">
-            <h2 className="text-2xl text-blue-600 mb-4">
+
+      {isModelModalOpen && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl p-6">
+            <h1 className="text-2xl">
               Are you sure you want to delete this model?
-            </h2>
-            <div className="flex justify-end gap-4">
+            </h1>
+            <div className="flex gap-4 mt-4">
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded-xl"
-                onClick={handleConfirmDelete}
+                onClick={handleConfirmModelDelete}
               >
                 Yes, Delete
               </button>
               <button
-                className="bg-gray-600 text-white px-4 py-2 rounded-xl"
+                className="bg-gray-300 px-4 py-2 rounded-xl"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isWorkerModalOpen && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl p-6">
+            <h1 className="text-2xl">
+              Are you sure you want to delete this worker?
+            </h1>
+            <div className="flex gap-4 mt-4 justify-end">
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded-xl"
+                onClick={handleConfirmWorkerDelete}
+              >
+                Yes, Delete
+              </button>
+              <button
+                className="bg-gray-300 px-4 py-2 rounded-xl"
                 onClick={handleCancelDelete}
               >
                 Cancel

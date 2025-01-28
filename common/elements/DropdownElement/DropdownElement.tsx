@@ -4,7 +4,7 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { FormElementProps } from "@/common/types";
 
 const DropdownFieldElement: React.FC<
-  FormElementProps & { options: string[] | undefined }
+  FormElementProps & { options: { label: string; value: string }[] | undefined }
 > = ({ label, name, options }) => {
   const {
     control,
@@ -27,8 +27,8 @@ const DropdownFieldElement: React.FC<
             }}
           >
             {options?.map((item) => (
-              <MenuItem key={item} value={item}>
-                {item}
+              <MenuItem key={item.value} value={item.value}>
+                {item.label}
               </MenuItem>
             ))}
           </Select>

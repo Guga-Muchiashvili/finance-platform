@@ -55,3 +55,18 @@ export interface FormElementProps {
   name: string;
   label: string;
 }
+
+export interface IFormWorker {
+  earnings?: string[];
+  modelId: string;
+  name: string;
+  profit: string;
+}
+
+export interface IWorker {
+  id?: string;
+  earnings: string[];
+  modelId: string;
+  name: string;
+  profit: string;
+}

@@ -2,10 +2,15 @@ import { fetchModelById } from "@/actions/fetch/fetch";
 import { IFormModel, Imodel } from "@/common/types";
 import CreateEditModelComponent from "@/components/CreateEditModelComponent/CreateEditModelComponent";
 
-const Page = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
-
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
   const modelData: Imodel = await fetchModelById(id);
+
   const defaultValues: IFormModel = {
     age: modelData.age,
     country: modelData.country,
@@ -20,9 +25,8 @@ const Page = async ({ params }: { params: { id: string } }) => {
     earnings: modelData.earnings,
     workers: modelData.workers,
   };
+
   return (
     <CreateEditModelComponent defaultValues={defaultValues} id={modelData.id} />
   );
-};
-
-export default Page;
+}
