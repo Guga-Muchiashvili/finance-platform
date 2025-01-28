@@ -233,7 +233,6 @@ export async function fetchDashboardData() {
           transactionDate.getMonth() === startMonth &&
           transactionDate.getFullYear() === startYear
         ) {
-          console.log("heree");
           monthlyTotal += Number(item.total);
           monthlyOurShare += (Number(item.total) / 100) * 50;
         }
@@ -244,7 +243,6 @@ export async function fetchDashboardData() {
           transactionDate.getMonth() === startMonth &&
           transactionDate.getFullYear() === startYear
         ) {
-          console.log("dadaam");
           monthlyTotal += Number(item.total);
           monthlyOurShare += (Number(item.total) / 100) * 40;
         }
