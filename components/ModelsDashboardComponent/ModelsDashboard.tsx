@@ -18,10 +18,6 @@ const ModelsDashboard = () => {
   const { data: DashboardData } = useGetModelDashboardData();
   const route = useRouter();
 
-  const labels = DashboardData?.workerChartData[0]?.data.map((_, index) => {
-    return `${index}`;
-  });
-
   const { mutate: deleteModel } = useDeleteModelMutation();
   const { mutate: deleteWorker } = useDeleteWorker();
 
@@ -145,7 +141,7 @@ const ModelsDashboard = () => {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-[58%]">
             <LineChartComponent
-              label={labels}
+              label={DashboardData?.chartLabels}
               datas={DashboardData?.modelChartData}
             />
           </div>
@@ -186,7 +182,7 @@ const ModelsDashboard = () => {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-[58%]">
             <LineChartComponent
-              label={labels}
+              label={DashboardData?.chartLabels}
               datas={DashboardData?.workerChartData}
             />
           </div>

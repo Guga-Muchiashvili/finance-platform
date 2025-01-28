@@ -206,6 +206,59 @@ export async function fetchDashboardData() {
       },
     ];
 
+    const months = [];
+    const ourShareArray = [];
+    const totalArray = [];
+
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    let startMonth = firstTransactionDate.getMonth();
+    let startYear = firstTransactionDate.getFullYear();
+
+    while (
+      startYear < currentYear ||
+      (startYear === currentYear && startMonth <= currentMonth)
+    ) {
+      const date = new Date(startYear, startMonth, 1);
+      const monthLabel = date.toLocaleString("default", { month: "short" });
+      months.push(`${monthLabel} ${startYear}`);
+
+      let monthlyTotal = 0;
+      let monthlyOurShare = 0;
+
+      DiscordTransactions.forEach((item) => {
+        const transactionDate = parseDate(item.createdAt);
+        if (
+          transactionDate.getMonth() === startMonth &&
+          transactionDate.getFullYear() === startYear
+        ) {
+          console.log("heree");
+          monthlyTotal += Number(item.total);
+          monthlyOurShare += (Number(item.total) / 100) * 50;
+        }
+      });
+      transactions.forEach((item) => {
+        const transactionDate = parseDate(item.createdAt);
+        if (
+          transactionDate.getMonth() === startMonth &&
+          transactionDate.getFullYear() === startYear
+        ) {
+          console.log("dadaam");
+          monthlyTotal += Number(item.total);
+          monthlyOurShare += (Number(item.total) / 100) * 40;
+        }
+      });
+
+      ourShareArray.push(Number(monthlyOurShare.toFixed(1)));
+      totalArray.push(Number(monthlyTotal.toFixed(1)));
+
+      startMonth++;
+      if (startMonth > 11) {
+        startMonth = 0;
+        startYear++;
+      }
+    }
     return {
       MoneyIn: totalMoney.toFixed(1),
       OurShare: ourShare.toFixed(1),
@@ -218,6 +271,9 @@ export async function fetchDashboardData() {
       totalOurShareChart,
       labels: Array.from(allPeriods).map((period) => period),
       subscriptions: Losses,
+      months,
+      ourShareArray,
+      totalArray,
     };
   } catch (error) {
     console.error("Error fetching data:", error);

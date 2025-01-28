@@ -56,23 +56,32 @@ export const getModelDashboardData = async () => {
       .toFixed(1);
 
     const allIntervals: string[] = [];
-    earnings.forEach((earning) => {
-      const date = new Date(earning.createdAt.split("/").reverse().join("-"));
-      let key;
-      const interval = determineInterval(date);
-      if (interval === "monthly") {
-        key = `${date.getFullYear()}-${date.getMonth() + 1}`;
-      } else if (interval === "biweekly") {
-        key = `${date.getFullYear()}-W${Math.floor(date.getDate() / 14) + 1}`;
-      } else {
-        key = earning.createdAt;
-      }
-      if (!allIntervals.includes(key)) {
-        allIntervals.push(key);
-      }
-    });
+    const firstTransactionDate = new Date(
+      Math.min(
+        ...earnings.map((earning) =>
+          new Date(earning.createdAt.split("/").reverse().join("-")).getTime()
+        )
+      )
+    );
 
-    allIntervals.sort();
+    const today = new Date();
+
+    for (
+      let date = new Date(firstTransactionDate);
+      date <= today;
+      date.setDate(date.getDate() + 14)
+    ) {
+      const endDate = new Date(date);
+      endDate.setDate(date.getDate() + 13);
+      const label = `${date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+      })} - ${endDate.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+      })}`;
+      allIntervals.push(label);
+    }
 
     const modelChartData = models.map((model) => {
       const modelEarnings = earnings.filter((e) => e.modelId === model.id);
@@ -87,20 +96,17 @@ export const getModelDashboardData = async () => {
 
       modelEarnings.forEach((earning) => {
         const date = new Date(earning.createdAt.split("/").reverse().join("-"));
-        let key;
-        const interval = determineInterval(date);
-        if (interval === "monthly") {
-          key = `${date.getFullYear()}-${date.getMonth() + 1}`;
-        } else if (interval === "biweekly") {
-          key = `${date.getFullYear()}-W${Math.floor(date.getDate() / 14) + 1}`;
-        } else {
-          key = earning.createdAt;
-        }
+        const intervalIndex = Math.floor(
+          (date.getTime() - firstTransactionDate.getTime()) /
+            (14 * 24 * 60 * 60 * 1000)
+        );
 
-        if (!groupedEarnings[key]) {
-          groupedEarnings[key] = 0;
+        if (!groupedEarnings[allIntervals[intervalIndex]]) {
+          groupedEarnings[allIntervals[intervalIndex]] = 0;
         }
-        groupedEarnings[key] += parseFloat(earning.total);
+        groupedEarnings[allIntervals[intervalIndex]] += parseFloat(
+          earning.total
+        );
       });
 
       const data = allIntervals.map((interval) => {
@@ -126,20 +132,17 @@ export const getModelDashboardData = async () => {
 
       workerEarnings.forEach((earning) => {
         const date = new Date(earning.createdAt.split("/").reverse().join("-"));
-        let key;
-        const interval = determineInterval(date);
-        if (interval === "monthly") {
-          key = `${date.getFullYear()}-${date.getMonth() + 1}`;
-        } else if (interval === "biweekly") {
-          key = `${date.getFullYear()}-W${Math.floor(date.getDate() / 14) + 1}`;
-        } else {
-          key = earning.createdAt;
-        }
+        const intervalIndex = Math.floor(
+          (date.getTime() - firstTransactionDate.getTime()) /
+            (14 * 24 * 60 * 60 * 1000)
+        );
 
-        if (!groupedEarnings[key]) {
-          groupedEarnings[key] = 0;
+        if (!groupedEarnings[allIntervals[intervalIndex]]) {
+          groupedEarnings[allIntervals[intervalIndex]] = 0;
         }
-        groupedEarnings[key] += parseFloat(earning.total);
+        groupedEarnings[allIntervals[intervalIndex]] += parseFloat(
+          earning.total
+        );
       });
 
       const data = allIntervals.map((interval) => {
@@ -241,6 +244,7 @@ export const getModelDashboardData = async () => {
       maxTransactionTotal,
       averageTransactionTotal,
       streak,
+      chartLabels: allIntervals,
     };
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
@@ -249,20 +253,6 @@ export const getModelDashboardData = async () => {
     await otherPrisma.$disconnect();
   }
 };
-
-function determineInterval(date: Date): "monthly" | "biweekly" | "daily" {
-  const now = new Date();
-  const timeDiff = now.getTime() - date.getTime();
-  const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-
-  if (daysDiff < 30) {
-    return "daily";
-  } else if (daysDiff < 365) {
-    return "biweekly";
-  } else {
-    return "monthly";
-  }
-}
 
 export async function addModel(data: IFormModel): Promise<IFormModel> {
   try {

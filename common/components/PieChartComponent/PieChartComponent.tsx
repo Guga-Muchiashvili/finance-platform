@@ -7,7 +7,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface PieChartProps {
   chartData: number[] | undefined;
-  label: string[];
+  label: string[] | undefined;
 }
 
 const PieChartComponent: React.FC<PieChartProps> = ({ chartData, label }) => {

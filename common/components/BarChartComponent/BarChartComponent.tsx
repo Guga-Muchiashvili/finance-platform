@@ -13,8 +13,8 @@ import {
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 interface IBarComponentProps {
-  chartData: number[];
-  label: string[];
+  chartData: number[] | undefined;
+  label: string[] | undefined;
 }
 
 const BarChartComponent: React.FC<IBarComponentProps> = ({

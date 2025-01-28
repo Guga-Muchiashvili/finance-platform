@@ -104,6 +104,23 @@ export default function LandingPageComponent() {
           </div>
         </div>
       </div>
+      <div className="w-full flex flex-col gap-4">
+        <h1 className="text-2xl text-blue-600">Montly incomes</h1>
+        <div className="flex justify-center gap-4 items-center">
+          <div className="w-[58%]">
+            <BarChartComponent
+              label={data?.months}
+              chartData={data?.totalArray}
+            />
+          </div>
+          <div className="w-[58%]">
+            <BarChartComponent
+              label={data?.months}
+              chartData={data?.ourShareArray}
+            />
+          </div>
+        </div>
+      </div>
       <div className="w-full h-1/2 flex flex-col text-blue-600 gap-4">
         <h1 className="text-2xl ">Transactions</h1>
         <div className="flex justify-center gap-4 items-center">
