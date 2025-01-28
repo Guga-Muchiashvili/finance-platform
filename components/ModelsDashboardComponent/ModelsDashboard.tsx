@@ -6,12 +6,14 @@ import LineChartComponent from "@/common/components/LineChartComponent/LineChart
 import { useGetModelDashboardData } from "@/queries/useGetModelDashboardData/useGetModelDashboardData";
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
+import { useRouter } from "next/navigation";
 
 const ModelsDashboard = () => {
   const [filter, setFilter] = useState<"overall" | "last Month" | "last Week">(
     "overall"
   );
   const { data: DashboardData } = useGetModelDashboardData();
+  const route = useRouter();
 
   const labels = DashboardData?.workerChartData[0]?.data.map((_, index) => {
     return `${index}`;
@@ -133,7 +135,10 @@ const ModelsDashboard = () => {
           <div className="w-full md:w-[58%] bg-white rounded-xl p-3 shadow">
             <div className="flex justify-between mb-2">
               <h1 className="text-2xl">Models</h1>
-              <button className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl">
+              <button
+                className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl"
+                onClick={() => route.push("Models/create")}
+              >
                 Add Model
               </button>
             </div>
