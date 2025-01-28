@@ -1,4 +1,5 @@
 "use server";
+import { IFormModel } from "@/common/types";
 import { otherPrisma } from "../../../common/lib/db";
 
 export const getModelDashboardData = async () => {
@@ -260,5 +261,70 @@ function determineInterval(date: Date): "monthly" | "biweekly" | "daily" {
     return "biweekly";
   } else {
     return "monthly";
+  }
+}
+
+export async function addModel(data: IFormModel): Promise<IFormModel> {
+  try {
+    const existingModel = await otherPrisma.model.findUnique({
+      where: { name: data.name },
+    });
+
+    if (existingModel) {
+      throw new Error(`A model with the name "${data.name}" already exists.`);
+    }
+
+    const newModel = await otherPrisma.model.create({
+      data: { ...data },
+    });
+
+    return newModel;
+  } catch (error) {
+    console.error("Error adding new model:", error);
+    throw error;
+  }
+}
+
+export async function deleteModel(id: string): Promise<void> {
+  try {
+    const modelToDelete = await otherPrisma.model.findUnique({
+      where: { id },
+    });
+
+    if (!modelToDelete) {
+      throw new Error(`Model with ID ${id} not found.`);
+    }
+
+    await otherPrisma.model.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting model:", error);
+    throw error;
+  }
+}
+
+export async function editModel(
+  id: string,
+  updatedData: IFormModel
+): Promise<IFormModel> {
+  try {
+    const modelToEdit = await otherPrisma.model.findUnique({
+      where: { id },
+    });
+
+    if (!modelToEdit) {
+      throw new Error(`Model with ID ${id} not found.`);
+    }
+
+    const updatedModel = await otherPrisma.model.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedModel;
+  } catch (error) {
+    console.error("Error editing model:", error);
+    throw error;
   }
 }

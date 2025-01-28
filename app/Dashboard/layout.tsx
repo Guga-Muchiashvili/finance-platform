@@ -10,7 +10,7 @@ export default function DashboardLayout({
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <NavBarComponent />
-
+      <Toaster />
       <main
         style={{
           marginLeft: "4rem",

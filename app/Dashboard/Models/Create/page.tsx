@@ -1,4 +1,5 @@
 "use client";
+import { IFormModel } from "@/common/types";
 import dynamic from "next/dynamic";
 const CreateEditModelComponent = dynamic(
   () =>
@@ -7,5 +8,19 @@ const CreateEditModelComponent = dynamic(
 );
 
 export default function Page() {
-  return <CreateEditModelComponent />;
+  const defaultValues: IFormModel = {
+    age: "",
+    country: "",
+    date: "",
+    description: "",
+    drive: "",
+    email: "",
+    image: "",
+    name: "",
+    password: "",
+    telegram: "",
+    earnings: [],
+    workers: [],
+  };
+  return <CreateEditModelComponent defaultValues={defaultValues} />;
 }

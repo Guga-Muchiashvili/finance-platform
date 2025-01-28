@@ -7,6 +7,8 @@ import { useGetModelDashboardData } from "@/queries/useGetModelDashboardData/use
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
 import { useRouter } from "next/navigation";
+import useDeleteModelMutation from "@/mutations/ModelMutations/DeleteModel";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 const ModelsDashboard = () => {
   const [filter, setFilter] = useState<"overall" | "last Month" | "last Week">(
@@ -18,6 +20,8 @@ const ModelsDashboard = () => {
   const labels = DashboardData?.workerChartData[0]?.data.map((_, index) => {
     return `${index}`;
   });
+
+  const { mutate: deleteModel } = useDeleteModelMutation();
 
   const ModelLabels =
     DashboardData?.ModelsPieData?.map((data) => `${data.label}`) || [];
@@ -31,6 +35,29 @@ const ModelsDashboard = () => {
     DashboardData?.WorkersPieData?.map((data) => Number(data.value)) || [];
   const MonthBarData =
     DashboardData?.moneyByMonth?.map((data) => Number(data.value)) || [];
+
+  // State for showing the confirmation modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
+
+  // Open confirmation modal
+  const handleDeleteClick = (modelId: string) => {
+    setSelectedModelId(modelId);
+    setIsModalOpen(true);
+  };
+
+  // Confirm deletion
+  const handleConfirmDelete = () => {
+    if (selectedModelId) {
+      deleteModel(selectedModelId); // Perform deletion
+    }
+    setIsModalOpen(false);
+  };
+
+  // Cancel deletion
+  const handleCancelDelete = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="w-full flex flex-col gap-4 min-h-screen text-blue-600 p-4 bg-gray-100">
@@ -99,6 +126,7 @@ const ModelsDashboard = () => {
           </div>
         </div>
       </div>
+
       <div className="grid grid-cols-4 gap-4 mt-10">
         <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
           <h1 className="text-2xl">Transaction Fees</h1>
@@ -123,6 +151,7 @@ const ModelsDashboard = () => {
           <h1 className="text-6xl mt-4">{DashboardData?.streak} day</h1>
         </div>
       </div>
+
       <div className="w-full flex flex-col gap-4">
         <h1 className="text-2xl text-blue-600">Models incomes</h1>
         <div className="flex flex-col md:flex-row gap-4">
@@ -137,7 +166,7 @@ const ModelsDashboard = () => {
               <h1 className="text-2xl">Models</h1>
               <button
                 className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl"
-                onClick={() => route.push("Models/create")}
+                onClick={() => route.push("Models/Create")}
               >
                 Add Model
               </button>
@@ -145,10 +174,18 @@ const ModelsDashboard = () => {
             <div className="h-[40vh] overflow-y-auto hide-scrollbar">
               {DashboardData?.models.map((item) => (
                 <div
-                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  className="w-full h-20 mt-4 flex items-center relative border-[1px] shadow-lg rounded-xl p-3"
                   key={item.id}
                 >
                   {item.name}
+                  <FaEdit
+                    className="text-green-600  absolute right-9 cursor-pointer"
+                    onClick={() => route.push(`Models/Edit/${item.id}`)}
+                  />
+                  <FaTrash
+                    className="text-red-500 absolute right-3 cursor-pointer"
+                    onClick={() => handleDeleteClick(item.id)} // Open the modal
+                  />
                 </div>
               ))}
             </div>
@@ -238,6 +275,29 @@ const ModelsDashboard = () => {
           Credentials
         </button>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white px-6 py-3 rounded-xl shadow-lg w-fit">
+            <h2 className="text-2xl text-blue-600 mb-4">
+              Are you sure you want to delete this model?
+            </h2>
+            <div className="flex justify-end gap-4">
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded-xl"
+                onClick={handleConfirmDelete}
+              >
+                Yes, Delete
+              </button>
+              <button
+                className="bg-gray-600 text-white px-4 py-2 rounded-xl"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
