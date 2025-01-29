@@ -2,6 +2,7 @@
 import { INewTransaction, Itransaction } from "@/common/types";
 import { otherPrisma } from "../../../common/lib/db";
 import { mainPrisma } from "../../../common/lib/db";
+import { format } from "date-fns";
 
 const parseDate = (dateString: string): Date => {
   const [day, month, year] = dateString.split("/").map(Number);
@@ -90,54 +91,99 @@ export async function fetchDashboardData() {
       throw new Error("No transactions found");
     }
 
-    const generateDateRangeLabel = (date: Date, isMonthly: boolean): string => {
-      const startOfPeriod = new Date(date);
-      const endOfPeriod = new Date(date);
-
-      if (isMonthly) {
-        startOfPeriod.setDate(1);
-        endOfPeriod.setMonth(date.getMonth() + 1);
-        endOfPeriod.setDate(0);
-      } else {
-        const weekStart = Math.floor(date.getDate() / 14) * 14;
-        startOfPeriod.setDate(weekStart + 1);
-        endOfPeriod.setDate(weekStart + 14);
-      }
-
-      const options = {
-        month: "short",
-        day: "numeric",
-      } as const;
-
-      return `${startOfPeriod.toLocaleDateString(
-        "en-US",
-        options
-      )} - ${endOfPeriod.toLocaleDateString("en-US", options)}`;
-    };
-
     const generateGroupedAmounts = (
       transactions: Itransaction[] | INewTransaction[],
       firstTransactionDate: Date
     ): MonthlyAmounts => {
       const monthlyAmounts: MonthlyAmounts = {};
       const now = new Date();
+
       const monthsDiff =
         now.getMonth() -
         firstTransactionDate.getMonth() +
         (now.getFullYear() - firstTransactionDate.getFullYear()) * 12;
 
-      const isMonthly = monthsDiff > 6;
+      const isMonthly = monthsDiff > 12;
+      const isTwoWeekGrouped = monthsDiff > 1 && monthsDiff <= 12;
 
-      transactions.forEach((transaction) => {
-        const transactionDate = parseDate(transaction.createdAt);
+      let startMonth = firstTransactionDate.getMonth();
+      let startYear = firstTransactionDate.getFullYear();
 
-        const periodLabel = generateDateRangeLabel(transactionDate, isMonthly);
+      if (isTwoWeekGrouped) {
+        const currentDate = new Date(firstTransactionDate);
+        while (currentDate <= now) {
+          const endOfPeriod = new Date(currentDate);
+          endOfPeriod.setDate(currentDate.getDate() + 13);
 
-        if (!monthlyAmounts[periodLabel]) {
-          monthlyAmounts[periodLabel] = 0;
+          const label = `${format(currentDate, "MMM dd, yyyy")} - ${format(
+            endOfPeriod,
+            "MMM dd, yyyy"
+          )}`;
+
+          if (!monthlyAmounts[label]) {
+            monthlyAmounts[label] = 0;
+          }
+
+          transactions.forEach((transaction) => {
+            const transactionDate = parseDate(transaction.createdAt);
+            if (
+              transactionDate >= currentDate &&
+              transactionDate <= endOfPeriod
+            ) {
+              monthlyAmounts[label] += Number(transaction.total);
+            }
+          });
+
+          currentDate.setDate(currentDate.getDate() + 14);
         }
-        monthlyAmounts[periodLabel] += Number(transaction.total);
-      });
+      } else if (isMonthly) {
+        while (
+          startYear < now.getFullYear() ||
+          (startYear === now.getFullYear() && startMonth <= now.getMonth())
+        ) {
+          const date = new Date(startYear, startMonth, 1);
+          const monthLabel =
+            date.toLocaleString("default", { month: "short" }) +
+            ` ${startYear}`;
+
+          if (!monthlyAmounts[monthLabel]) {
+            monthlyAmounts[monthLabel] = 0;
+          }
+
+          transactions.forEach((transaction) => {
+            const transactionDate = parseDate(transaction.createdAt);
+            if (
+              transactionDate.getMonth() === startMonth &&
+              transactionDate.getFullYear() === startYear
+            ) {
+              monthlyAmounts[monthLabel] += Number(transaction.total);
+            }
+          });
+
+          startMonth++;
+          if (startMonth > 11) {
+            startMonth = 0;
+            startYear++;
+          }
+        }
+      } else {
+        const monthLabel =
+          now.toLocaleString("default", { month: "short" }) +
+          ` ${now.getFullYear()}`;
+        if (!monthlyAmounts[monthLabel]) {
+          monthlyAmounts[monthLabel] = 0;
+        }
+
+        transactions.forEach((transaction) => {
+          const transactionDate = parseDate(transaction.createdAt);
+          if (
+            transactionDate.getMonth() === now.getMonth() &&
+            transactionDate.getFullYear() === now.getFullYear()
+          ) {
+            monthlyAmounts[monthLabel] += Number(transaction.total);
+          }
+        });
+      }
 
       return monthlyAmounts;
     };
