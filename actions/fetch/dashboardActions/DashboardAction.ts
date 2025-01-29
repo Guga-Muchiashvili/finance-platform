@@ -2,7 +2,6 @@
 import { INewTransaction, Itransaction } from "@/common/types";
 import { otherPrisma } from "../../../common/lib/db";
 import { mainPrisma } from "../../../common/lib/db";
-import { format } from "date-fns";
 
 const parseDate = (dateString: string): Date => {
   const [day, month, year] = dateString.split("/").map(Number);
@@ -115,10 +114,9 @@ export async function fetchDashboardData() {
           const endOfPeriod = new Date(currentDate);
           endOfPeriod.setDate(currentDate.getDate() + 13);
 
-          const label = `${format(currentDate, "MMM dd, yyyy")} - ${format(
-            endOfPeriod,
-            "MMM dd, yyyy"
-          )}`;
+          const label = `${currentDate.toLocaleString("default", {
+            month: "short",
+          })} ${currentDate.getDate()} - ${endOfPeriod.getDate()}, ${currentDate.getFullYear()}`;
 
           if (!monthlyAmounts[label]) {
             monthlyAmounts[label] = 0;
@@ -142,9 +140,9 @@ export async function fetchDashboardData() {
           (startYear === now.getFullYear() && startMonth <= now.getMonth())
         ) {
           const date = new Date(startYear, startMonth, 1);
-          const monthLabel =
-            date.toLocaleString("default", { month: "short" }) +
-            ` ${startYear}`;
+          const monthLabel = `${date.toLocaleString("default", {
+            month: "short",
+          })} ${startYear}`;
 
           if (!monthlyAmounts[monthLabel]) {
             monthlyAmounts[monthLabel] = 0;
@@ -167,9 +165,9 @@ export async function fetchDashboardData() {
           }
         }
       } else {
-        const monthLabel =
-          now.toLocaleString("default", { month: "short" }) +
-          ` ${now.getFullYear()}`;
+        const monthLabel = `${now.toLocaleString("default", {
+          month: "short",
+        })} ${now.getFullYear()}`;
         if (!monthlyAmounts[monthLabel]) {
           monthlyAmounts[monthLabel] = 0;
         }
