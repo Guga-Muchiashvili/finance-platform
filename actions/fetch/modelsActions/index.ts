@@ -6,14 +6,14 @@ import {
   Itransaction,
   IWorker,
 } from "@/common/types";
-import { otherPrisma } from "../../../common/lib/db";
+import { mainPrisma } from "../../../common/lib/db";
 
 export const getModelDashboardData = async () => {
   try {
     const [earnings, workers, models] = await Promise.all([
-      otherPrisma.earning.findMany(),
-      otherPrisma.worker.findMany(),
-      otherPrisma.model.findMany(),
+      mainPrisma.earning.findMany(),
+      mainPrisma.worker.findMany(),
+      mainPrisma.model.findMany(),
     ]);
 
     const moneyIn = earnings
@@ -163,7 +163,7 @@ export const getModelDashboardData = async () => {
 
     const modelTransaction = await Promise.all(
       models.map(async (model) => {
-        const modelEarnings = await otherPrisma.earning.findMany({
+        const modelEarnings = await mainPrisma.earning.findMany({
           where: { modelId: model.id },
         });
         const totalEarnings = modelEarnings.reduce(
@@ -180,7 +180,7 @@ export const getModelDashboardData = async () => {
 
     const workerTransaction = await Promise.all(
       workers.map(async (worker) => {
-        const workerEarnings = await otherPrisma.earning.findMany({
+        const workerEarnings = await mainPrisma.earning.findMany({
           where: { workerId: worker.id },
         });
         const totalEarnings = workerEarnings.reduce(
@@ -256,13 +256,13 @@ export const getModelDashboardData = async () => {
     console.error("Error fetching dashboard data:", error);
     throw new Error("Failed to fetch dashboard data");
   } finally {
-    await otherPrisma.$disconnect();
+    await mainPrisma.$disconnect();
   }
 };
 
 export async function addModel(data: IFormModel): Promise<IFormModel> {
   try {
-    const existingModel = await otherPrisma.model.findUnique({
+    const existingModel = await mainPrisma.model.findUnique({
       where: { name: data.name },
     });
 
@@ -270,7 +270,7 @@ export async function addModel(data: IFormModel): Promise<IFormModel> {
       throw new Error(`A model with the name "${data.name}" already exists.`);
     }
 
-    const newModel = await otherPrisma.model.create({
+    const newModel = await mainPrisma.model.create({
       data: { ...data },
     });
 
@@ -283,7 +283,7 @@ export async function addModel(data: IFormModel): Promise<IFormModel> {
 
 export async function deleteModel(id: string): Promise<void> {
   try {
-    const modelToDelete = await otherPrisma.model.findUnique({
+    const modelToDelete = await mainPrisma.model.findUnique({
       where: { id },
     });
 
@@ -291,7 +291,7 @@ export async function deleteModel(id: string): Promise<void> {
       throw new Error(`Model with ID ${id} not found.`);
     }
 
-    await otherPrisma.model.delete({
+    await mainPrisma.model.delete({
       where: { id },
     });
   } catch (error) {
@@ -305,7 +305,7 @@ export async function editModel(
   updatedData: IFormModel
 ): Promise<IFormModel> {
   try {
-    const modelToEdit = await otherPrisma.model.findUnique({
+    const modelToEdit = await mainPrisma.model.findUnique({
       where: { id },
     });
 
@@ -313,7 +313,7 @@ export async function editModel(
       throw new Error(`Model with ID ${id} not found.`);
     }
 
-    const updatedModel = await otherPrisma.model.update({
+    const updatedModel = await mainPrisma.model.update({
       where: { id },
       data: { ...updatedData },
     });
@@ -330,7 +330,7 @@ export async function editWorker(
   updatedData: IFormWorker
 ): Promise<IFormWorker> {
   try {
-    const workerToEdit = await otherPrisma.worker.findUnique({
+    const workerToEdit = await mainPrisma.worker.findUnique({
       where: { id },
     });
 
@@ -338,7 +338,7 @@ export async function editWorker(
       throw new Error(`Worker with ID ${id} not found.`);
     }
 
-    const updatedWorker = await otherPrisma.worker.update({
+    const updatedWorker = await mainPrisma.worker.update({
       where: { id },
       data: { ...updatedData },
     });
@@ -352,11 +352,11 @@ export async function editWorker(
 
 export async function addWorker(data: IFormWorker): Promise<IWorker> {
   try {
-    const newWorker = await otherPrisma.worker.create({
+    const newWorker = await mainPrisma.worker.create({
       data: { ...data },
     });
 
-    await otherPrisma.model.update({
+    await mainPrisma.model.update({
       where: { id: data.modelId },
       data: {
         workers: {
@@ -374,7 +374,7 @@ export async function addWorker(data: IFormWorker): Promise<IWorker> {
 
 export async function deleteWorker(id: string): Promise<void> {
   try {
-    const workerToDelete = await otherPrisma.worker.findUnique({
+    const workerToDelete = await mainPrisma.worker.findUnique({
       where: { id },
     });
 
@@ -382,7 +382,7 @@ export async function deleteWorker(id: string): Promise<void> {
       throw new Error(`Worker with ID ${id} not found.`);
     }
 
-    const modelToUpdate = await otherPrisma.model.findUnique({
+    const modelToUpdate = await mainPrisma.model.findUnique({
       where: { id: workerToDelete.modelId },
       select: { workers: true },
     });
@@ -395,14 +395,14 @@ export async function deleteWorker(id: string): Promise<void> {
       (workerId) => workerId !== id
     );
 
-    await otherPrisma.model.update({
+    await mainPrisma.model.update({
       where: { id: workerToDelete.modelId },
       data: {
         workers: updatedWorkers,
       },
     });
 
-    await otherPrisma.worker.delete({
+    await mainPrisma.worker.delete({
       where: { id },
     });
   } catch (error) {
@@ -415,7 +415,7 @@ export async function addTransaction(
   data: IFormEarning
 ): Promise<Itransaction> {
   try {
-    const newTransaction = await otherPrisma.earning.create({
+    const newTransaction = await mainPrisma.earning.create({
       data: { ...data },
     });
 
@@ -431,7 +431,7 @@ export async function editTransaction(
   updatedData: IFormEarning
 ): Promise<Itransaction> {
   try {
-    const transactionToEdit = await otherPrisma.earning.findUnique({
+    const transactionToEdit = await mainPrisma.earning.findUnique({
       where: { id },
     });
 
@@ -439,7 +439,7 @@ export async function editTransaction(
       throw new Error(`Transaction with ID ${id} not found.`);
     }
 
-    const updatedTransaction = await otherPrisma.earning.update({
+    const updatedTransaction = await mainPrisma.earning.update({
       where: { id },
       data: { ...updatedData },
     });
@@ -453,7 +453,7 @@ export async function editTransaction(
 
 export async function deleteTransaction(id: string): Promise<void> {
   try {
-    const transactionToDelete = await otherPrisma.earning.findUnique({
+    const transactionToDelete = await mainPrisma.earning.findUnique({
       where: { id },
     });
 
@@ -461,7 +461,7 @@ export async function deleteTransaction(id: string): Promise<void> {
       throw new Error(`Transaction with ID ${id} not found.`);
     }
 
-    await otherPrisma.earning.delete({
+    await mainPrisma.earning.delete({
       where: { id },
     });
   } catch (error) {

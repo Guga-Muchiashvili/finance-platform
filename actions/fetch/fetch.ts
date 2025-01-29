@@ -1,9 +1,9 @@
 "use server";
-import { otherPrisma } from "../../common/lib/db";
+import { mainPrisma } from "../../common/lib/db";
 
 export async function fetchTransactions() {
   try {
-    const models = await otherPrisma.earning.findMany();
+    const models = await mainPrisma.earning.findMany();
     return models;
   } catch (error) {
     console.error("Error fetching models:", error);
@@ -13,7 +13,7 @@ export async function fetchTransactions() {
 
 export async function fetchWorkers() {
   try {
-    const models = await otherPrisma.worker.findMany();
+    const models = await mainPrisma.worker.findMany();
     return models;
   } catch (error) {
     console.error("Error fetching models:", error);
@@ -22,7 +22,7 @@ export async function fetchWorkers() {
 }
 export async function fetchModels() {
   try {
-    const models = await otherPrisma.model.findMany();
+    const models = await mainPrisma.model.findMany();
     return models;
   } catch (error) {
     console.error("Error fetching models:", error);
@@ -32,7 +32,7 @@ export async function fetchModels() {
 
 export async function fetchModelById(id: string) {
   try {
-    const model = await otherPrisma.model.findUnique({
+    const model = await mainPrisma.model.findUnique({
       where: {
         id,
       },
@@ -50,7 +50,7 @@ export async function fetchModelById(id: string) {
 }
 export async function fetchWorkerById(id: string) {
   try {
-    const Worker = await otherPrisma.worker.findUnique({
+    const Worker = await mainPrisma.worker.findUnique({
       where: {
         id,
       },
@@ -68,7 +68,7 @@ export async function fetchWorkerById(id: string) {
 }
 export async function fetchTransactionById(id: string) {
   try {
-    const Transaction = await otherPrisma.earning.findUnique({
+    const Transaction = await mainPrisma.earning.findUnique({
       where: {
         id,
       },

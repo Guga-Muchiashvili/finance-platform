@@ -1,6 +1,5 @@
 "use server";
 import { INewTransaction, Itransaction } from "@/common/types";
-import { otherPrisma } from "../../../common/lib/db";
 import { mainPrisma } from "../../../common/lib/db";
 
 const parseDate = (dateString: string): Date => {
@@ -14,7 +13,7 @@ interface MonthlyAmounts {
 
 export async function fetchDashboardData() {
   try {
-    const transactions = await otherPrisma.earning.findMany();
+    const transactions = await mainPrisma.earning.findMany();
     const DiscordTransactions = await mainPrisma.transactions.findMany();
     const Losses = await mainPrisma.subscription.findMany();
 
