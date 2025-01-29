@@ -1,5 +1,4 @@
 "use server";
-import { IFormWorker, IWorker } from "@/common/types";
 import { otherPrisma } from "../../common/lib/db";
 
 export async function fetchTransactions() {
@@ -67,64 +66,21 @@ export async function fetchWorkerById(id: string) {
     throw error;
   }
 }
-
-export async function addWorker(data: IFormWorker): Promise<IWorker> {
+export async function fetchTransactionById(id: string) {
   try {
-    const newWorker = await otherPrisma.worker.create({
-      data: { ...data },
-    });
-
-    await otherPrisma.model.update({
-      where: { id: data.modelId },
-      data: {
-        workers: {
-          push: newWorker.id,
-        },
+    const Transaction = await otherPrisma.earning.findUnique({
+      where: {
+        id,
       },
     });
 
-    return newWorker;
-  } catch (error) {
-    console.error("Error adding new worker:", error);
-    throw error;
-  }
-}
-
-export async function deleteWorker(id: string): Promise<void> {
-  try {
-    const workerToDelete = await otherPrisma.worker.findUnique({
-      where: { id },
-    });
-
-    if (!workerToDelete) {
-      throw new Error(`Worker with ID ${id} not found.`);
+    if (!Transaction) {
+      throw new Error(`Transaction with id ${id} not found.`);
     }
 
-    const modelToUpdate = await otherPrisma.model.findUnique({
-      where: { id: workerToDelete.modelId },
-      select: { workers: true },
-    });
-
-    if (!modelToUpdate) {
-      throw new Error(`Model with ID ${workerToDelete.modelId} not found.`);
-    }
-
-    const updatedWorkers = modelToUpdate.workers.filter(
-      (workerId) => workerId !== id
-    );
-
-    await otherPrisma.model.update({
-      where: { id: workerToDelete.modelId },
-      data: {
-        workers: updatedWorkers,
-      },
-    });
-
-    await otherPrisma.worker.delete({
-      where: { id },
-    });
+    return Transaction;
   } catch (error) {
-    console.error("Error deleting worker:", error);
+    console.error("Error fetching Transaction:", error);
     throw error;
   }
 }

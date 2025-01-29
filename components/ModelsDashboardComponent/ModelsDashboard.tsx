@@ -10,16 +10,23 @@ import { useRouter } from "next/navigation";
 import useDeleteModelMutation from "@/mutations/ModelMutations/DeleteModel";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import useDeleteWorker from "@/mutations/ModelMutations/DeleteWorker";
+import useDeleteTransactionMutation from "@/mutations/ModelMutations/DeleteTransaction";
 
 const ModelsDashboard = () => {
-  const [filter, setFilter] = useState<"overall" | "last Month" | "last Week">(
-    "overall"
-  );
+  const [filter, setFilter] = useState("overall");
   const { data: DashboardData } = useGetModelDashboardData();
   const route = useRouter();
 
   const { mutate: deleteModel } = useDeleteModelMutation();
   const { mutate: deleteWorker } = useDeleteWorker();
+  const { mutate: deleteTransaction } = useDeleteTransactionMutation();
+
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [selectedModelId, setSelectedModelId] = useState("");
+  const [selectedWorkerId, setSelectedWorkerId] = useState("");
+  const [selectedTransactionId, setSelectedTransactionId] = useState("");
 
   const ModelLabels =
     DashboardData?.ModelsPieData?.map((data) => `${data.label}`) || [];
@@ -34,11 +41,6 @@ const ModelsDashboard = () => {
   const MonthBarData =
     DashboardData?.moneyByMonth?.map((data) => Number(data.value)) || [];
 
-  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
-  const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
-  const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
-  const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
-
   const handleDeleteModelClick = (modelId: string) => {
     setSelectedModelId(modelId);
     setIsModelModalOpen(true);
@@ -49,23 +51,30 @@ const ModelsDashboard = () => {
     setIsWorkerModalOpen(true);
   };
 
+  const handleDeleteTransactionClick = (transactionId: string) => {
+    setSelectedTransactionId(transactionId);
+    setIsTransactionModalOpen(true);
+  };
+
   const handleConfirmModelDelete = () => {
-    if (selectedModelId) {
-      deleteModel(selectedModelId);
-    }
+    if (selectedModelId) deleteModel(selectedModelId);
     setIsModelModalOpen(false);
   };
 
   const handleConfirmWorkerDelete = () => {
-    if (selectedWorkerId) {
-      deleteWorker(selectedWorkerId);
-    }
+    if (selectedWorkerId) deleteWorker(selectedWorkerId);
     setIsWorkerModalOpen(false);
+  };
+
+  const handleConfirmTransactionDelete = () => {
+    if (selectedTransactionId) deleteTransaction(selectedTransactionId);
+    setIsTransactionModalOpen(false);
   };
 
   const handleCancelDelete = () => {
     setIsModelModalOpen(false);
     setIsWorkerModalOpen(false);
+    setIsTransactionModalOpen(false);
   };
 
   return (
@@ -247,19 +256,35 @@ const ModelsDashboard = () => {
           <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
             <div className="flex justify-between">
               <h1 className="text-2xl">Transactions</h1>
-              <button className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl">
+              <button
+                className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl"
+                onClick={() => route.push("Models/transactions/create")}
+              >
                 Add Transaction
               </button>
             </div>
             <div className="h-[40vh] overflow-y-auto hide-scrollbar">
-              {DashboardData?.transactions.map((item) => (
-                <div
-                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
-                  key={item.id}
-                >
-                  {item.createdAt}
-                </div>
-              ))}
+              {DashboardData?.transactions
+                .slice()
+                .reverse()
+                .map((item) => (
+                  <div
+                    className="w-full h-20 relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                    key={item.id}
+                  >
+                    {item.createdAt}
+                    <FaEdit
+                      className="text-green-600 absolute right-9 cursor-pointer"
+                      onClick={() =>
+                        route.push(`Models/transactions/edit/${item.id}`)
+                      }
+                    />
+                    <FaTrash
+                      className="text-red-500 absolute right-3 cursor-pointer"
+                      onClick={() => handleDeleteTransactionClick(item.id)}
+                    />
+                  </div>
+                ))}
             </div>
           </div>
           <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
@@ -327,6 +352,29 @@ const ModelsDashboard = () => {
         </div>
       )}
 
+      {isTransactionModalOpen && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl p-6">
+            <h1 className="text-2xl">
+              Are you sure you want to delete this transaction?
+            </h1>
+            <div className="flex gap-4 mt-4 justify-end">
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded-xl"
+                onClick={handleConfirmTransactionDelete}
+              >
+                Yes, Delete
+              </button>
+              <button
+                className="bg-gray-300 px-4 py-2 rounded-xl"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {isWorkerModalOpen && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl p-6">

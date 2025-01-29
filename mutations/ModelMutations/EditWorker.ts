@@ -15,13 +15,13 @@ export default function useEditWorker() {
     mutationFn: ({ id, updatedData }) => editWorker(id, updatedData),
     onSuccess: (data: IFormWorker) => {
       queryClient.invalidateQueries({ queryKey: ["workers"] });
-      toast.success("Model updated successfully");
+      toast.success("Worker updated successfully");
       router.push("/Dashboard/Models");
       return data;
     },
     onError: (error: Error) => {
-      toast.error("Error updating model");
-      console.error("Error editing model:", error.message);
+      toast.error("Error updating worker");
+      console.error("Error editing worker:", error.message);
     },
   });
 }

@@ -1,5 +1,11 @@
 "use server";
-import { IFormModel, IFormWorker } from "@/common/types";
+import {
+  IFormEarning,
+  IFormModel,
+  IFormWorker,
+  Itransaction,
+  IWorker,
+} from "@/common/types";
 import { otherPrisma } from "../../../common/lib/db";
 
 export const getModelDashboardData = async () => {
@@ -340,6 +346,126 @@ export async function editWorker(
     return updatedWorker;
   } catch (error) {
     console.error("Error editing worker:", error);
+    throw error;
+  }
+}
+
+export async function addWorker(data: IFormWorker): Promise<IWorker> {
+  try {
+    const newWorker = await otherPrisma.worker.create({
+      data: { ...data },
+    });
+
+    await otherPrisma.model.update({
+      where: { id: data.modelId },
+      data: {
+        workers: {
+          push: newWorker.id,
+        },
+      },
+    });
+
+    return newWorker;
+  } catch (error) {
+    console.error("Error adding new worker:", error);
+    throw error;
+  }
+}
+
+export async function deleteWorker(id: string): Promise<void> {
+  try {
+    const workerToDelete = await otherPrisma.worker.findUnique({
+      where: { id },
+    });
+
+    if (!workerToDelete) {
+      throw new Error(`Worker with ID ${id} not found.`);
+    }
+
+    const modelToUpdate = await otherPrisma.model.findUnique({
+      where: { id: workerToDelete.modelId },
+      select: { workers: true },
+    });
+
+    if (!modelToUpdate) {
+      throw new Error(`Model with ID ${workerToDelete.modelId} not found.`);
+    }
+
+    const updatedWorkers = modelToUpdate.workers.filter(
+      (workerId) => workerId !== id
+    );
+
+    await otherPrisma.model.update({
+      where: { id: workerToDelete.modelId },
+      data: {
+        workers: updatedWorkers,
+      },
+    });
+
+    await otherPrisma.worker.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting worker:", error);
+    throw error;
+  }
+}
+
+export async function addTransaction(
+  data: IFormEarning
+): Promise<Itransaction> {
+  try {
+    const newTransaction = await otherPrisma.earning.create({
+      data: { ...data },
+    });
+
+    return newTransaction;
+  } catch (error) {
+    console.error("Error adding new transaction:", error);
+    throw error;
+  }
+}
+
+export async function editTransaction(
+  id: string,
+  updatedData: IFormEarning
+): Promise<Itransaction> {
+  try {
+    const transactionToEdit = await otherPrisma.earning.findUnique({
+      where: { id },
+    });
+
+    if (!transactionToEdit) {
+      throw new Error(`Transaction with ID ${id} not found.`);
+    }
+
+    const updatedTransaction = await otherPrisma.earning.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedTransaction;
+  } catch (error) {
+    console.error("Error editing transaction:", error);
+    throw error;
+  }
+}
+
+export async function deleteTransaction(id: string): Promise<void> {
+  try {
+    const transactionToDelete = await otherPrisma.earning.findUnique({
+      where: { id },
+    });
+
+    if (!transactionToDelete) {
+      throw new Error(`Transaction with ID ${id} not found.`);
+    }
+
+    await otherPrisma.earning.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
     throw error;
   }
 }

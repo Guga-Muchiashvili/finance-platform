@@ -70,3 +70,26 @@ export interface IWorker {
   name: string;
   profit: string;
 }
+
+export interface IFormEarning {
+  amount: number;
+  createdAt: string;
+  lead: string;
+  modelId: string;
+  percentage: string;
+  status: string;
+  total: string;
+  workerId: string;
+}
+
+export interface IEarning {
+  amount: number;
+  createdAt: string;
+  lead: string;
+  modelId: string;
+  percentage: string;
+  status: string;
+  total: string;
+  workerId: string;
+  id: string;
+}

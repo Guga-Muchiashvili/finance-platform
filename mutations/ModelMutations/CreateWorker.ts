@@ -2,7 +2,7 @@ import { IFormWorker } from "@/common/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { addWorker } from "@/actions/fetch/fetch";
+import { addWorker } from "@/actions/fetch/modelsActions";
 
 export default function useAddWorkerMutation() {
   const queryClient = useQueryClient();
@@ -19,8 +19,8 @@ export default function useAddWorkerMutation() {
       return data;
     },
     onError: (error: Error) => {
-      toast.error("Error creating model");
-      console.error("Error adding model:", error.message);
+      toast.error("Error creating worker");
+      console.error("Error adding worker:", error.message);
     },
   });
 }

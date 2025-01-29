@@ -27,3 +27,14 @@ export const workerSchema = yup.object().shape({
   name: yup.string().required("name is required"),
   profit: yup.string().required("profit is required"),
 });
+
+export const EarningSchema = yup.object().shape({
+  amount: yup.number().required("amount is required"),
+  createdAt: yup.string().required("createdAt is required"),
+  lead: yup.string().required("lead is required"),
+  modelId: yup.string().required("modelId is required"),
+  percentage: yup.string().required("percentage is required"),
+  status: yup.string().required("status is required"),
+  total: yup.string().required("total is required"),
+  workerId: yup.string().required("ModworkerId is required"),
+});

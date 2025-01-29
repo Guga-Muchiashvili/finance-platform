@@ -1,14 +1,14 @@
-import { deleteWorker } from "@/actions/fetch/modelsActions";
+import { deleteTransaction } from "@/actions/fetch/modelsActions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export default function useDeleteWorker() {
+export default function useDeleteTransactionMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({
-    mutationFn: (id) => deleteWorker(id),
+    mutationFn: (id) => deleteTransaction(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workers"] });
+      queryClient.invalidateQueries({ queryKey: ["transaction"] });
       toast.success("worker deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["ModelDashboardData"] });
     },
