@@ -1,5 +1,6 @@
 "use server";
 import {
+  IEarning,
   IFormEarning,
   IFormModel,
   IFormWorker,
@@ -30,15 +31,13 @@ export const getModelDashboardData = async () => {
 
     const ourShare = earnings
       .reduce((sum, earning) => {
-        const percentage = parseFloat(earning.percentage);
-        return sum + parseFloat(earning.total) * (1 - percentage / 100);
+        return sum + parseFloat(earning.total) * 0.4;
       }, 0)
       .toFixed(1);
 
     const ourShareBroughtOut = completedEarnings
       .reduce((sum, earning) => {
-        const percentage = parseFloat(earning.percentage);
-        return sum + parseFloat(earning.total) * (1 - percentage / 100);
+        return sum + parseFloat(earning.total) * 0.4;
       }, 0)
       .toFixed(1);
 
@@ -206,29 +205,60 @@ export const getModelDashboardData = async () => {
       transactionTotals.length
     ).toFixed(1);
 
-    const transactionDates = earnings
-      .map((earning) =>
-        new Date(
-          earning.createdAt.split("/").reverse().join("-")
-        ).toDateString()
-      )
-      .sort();
+    function calculateStreak(transactions: IEarning[]) {
+      // Get today's date as a string in 'MM/DD/YYYY' format
+      const today = new Date().toLocaleDateString();
 
-    let streak = 1;
-    let currentStreak = 1;
-    for (let i = 1; i < transactionDates.length; i++) {
-      if (
-        new Date(transactionDates[i]).getTime() -
-          new Date(transactionDates[i - 1]).getTime() ===
-        86400000
-      ) {
-        currentStreak++;
-      } else {
-        streak = Math.max(streak, currentStreak);
-        currentStreak = 1;
+      // Check if there's a transaction today
+      const transactionDates = transactions.map((transaction) =>
+        new Date(transaction.createdAt).toLocaleDateString()
+      );
+
+      // If there's no transaction today, return 0
+      if (!transactionDates.includes(today)) {
+        return 0;
       }
+
+      // Sort transactions by the created date in descending order
+      transactions.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      let streak = 0;
+      let lastTransactionDate = null;
+
+      for (const transaction of transactions) {
+        const currentTransactionDate = new Date(
+          transaction.createdAt
+        ).toLocaleDateString();
+
+        // Check if this is the first transaction or if the current date is consecutive to the last one
+        if (lastTransactionDate === null) {
+          streak = 1; // First transaction
+        } else if (isConsecutive(lastTransactionDate, currentTransactionDate)) {
+          streak++; // Increment streak if consecutive
+        } else {
+          break; // Reset streak if there is a gap
+        }
+
+        lastTransactionDate = currentTransactionDate;
+      }
+
+      return streak;
     }
-    streak = Math.max(streak, currentStreak);
+
+    function isConsecutive(lastDate: string, currentDate: string) {
+      const last = new Date(lastDate);
+      const current = new Date(currentDate);
+
+      // Check if the current date is exactly one day after the last transaction
+      current.setDate(current.getDate() - 1);
+      return last.toLocaleDateString() === current.toLocaleDateString();
+    }
+
+    const streak = calculateStreak(earnings);
+    console.log(streak, "streak");
 
     return {
       moneyIn,
@@ -249,7 +279,7 @@ export const getModelDashboardData = async () => {
       ),
       maxTransactionTotal,
       averageTransactionTotal,
-      streak,
+      streak: streak,
       chartLabels: allIntervals,
     };
   } catch (error) {
@@ -466,6 +496,92 @@ export async function deleteTransaction(id: string): Promise<void> {
     });
   } catch (error) {
     console.error("Error deleting transaction:", error);
+    throw error;
+  }
+}
+
+export async function calculateWorkerPayment(
+  workerId: string
+): Promise<number> {
+  try {
+    const earnings = await mainPrisma.earning.findMany({
+      where: {
+        workerId,
+        status: { not: "completed" },
+      },
+    });
+
+    if (!earnings.length) {
+      return 0;
+    }
+
+    const totalPayment = earnings.reduce((sum, earning) => {
+      const transactionAmount = parseFloat(earning.amount.toString());
+      const percentage = parseFloat(earning.percentage);
+
+      if (isNaN(transactionAmount) || isNaN(percentage)) {
+        console.warn(`Invalid earning data for worker ${workerId}:`, earning);
+        return sum;
+      }
+
+      return sum + (transactionAmount * percentage) / 100;
+    }, 0);
+
+    return totalPayment;
+  } catch (error) {
+    console.error("Error calculating worker payment:", error);
+    throw error;
+  }
+}
+
+export async function calculatePaymentsForAllWorkers(): Promise<
+  { id: string; name: string; modelId: string; amountDue: string }[]
+> {
+  try {
+    const workers = await mainPrisma.worker.findMany();
+
+    const earnings = await mainPrisma.earning.findMany({
+      where: {
+        status: { not: "completed" },
+      },
+    });
+
+    const earningsByWorker: Record<string, typeof earnings> = {};
+    earnings.forEach((earning) => {
+      if (!earningsByWorker[earning.workerId]) {
+        earningsByWorker[earning.workerId] = [];
+      }
+      earningsByWorker[earning.workerId].push(earning);
+    });
+
+    const workerPayments = workers.map((worker) => {
+      const workerEarnings = earningsByWorker[worker.id] || [];
+      const amountDue = workerEarnings.reduce((sum, earning) => {
+        const transactionAmount = parseFloat(earning.total.toString());
+        const percentage = Number(earning.percentage);
+
+        if (isNaN(transactionAmount) || isNaN(percentage)) {
+          console.warn(
+            `Invalid earning data for worker ${worker.id}:`,
+            earning
+          );
+          return sum;
+        }
+
+        return sum + (transactionAmount * Number(percentage - 3)) / 100;
+      }, 0);
+
+      return {
+        id: worker.id,
+        name: worker.name,
+        modelId: worker.modelId,
+        amountDue: amountDue.toFixed(1),
+      };
+    });
+
+    return workerPayments;
+  } catch (error) {
+    console.error("Error calculating worker payments:", error);
     throw error;
   }
 }

@@ -22,6 +22,7 @@ const CreateEditTransaction = ({
   defaultValues: IFormEarning;
   id?: string;
 }) => {
+  console.log(defaultValues.status);
   const { data: models } = useGetModels();
   const { data: workers } = useGetWorkers();
   const route = useRouter();
@@ -81,15 +82,15 @@ const CreateEditTransaction = ({
               label="status"
               name="status"
               options={[
-                { label: "Completed", value: "Completed" },
-                { label: "Hold", value: "Hold" },
-                { label: "Balance", value: "Balance" },
+                { label: "completed", value: "Completed" },
+                { label: "hold", value: "Hold" },
+                { label: "balance", value: "Balance" },
               ]}
             />
             <TextFieldElementComponent label="percentage" name="percentage" />
           </div>
           <h1 className="text-2xl text-blue-600 mt-2">Model Social Media</h1>
-          <div className="w-full h-fit gap-9 bg-white grid grid-cols-3 p-3 rounded-xl">
+          <div className="w-full h-fit gap-9 bg-white grid grid-cols-2 p-3 rounded-xl">
             <DropdownFieldElement
               label="model"
               name="modelId"

@@ -11,10 +11,12 @@ import useDeleteModelMutation from "@/mutations/ModelMutations/DeleteModel";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import useDeleteWorker from "@/mutations/ModelMutations/DeleteWorker";
 import useDeleteTransactionMutation from "@/mutations/ModelMutations/DeleteTransaction";
+import { useGetWorkersSallary } from "@/queries/useGetPaymentAmount/useGetPaymentAmount";
 
 const ModelsDashboard = () => {
   const [filter, setFilter] = useState("overall");
   const { data: DashboardData } = useGetModelDashboardData();
+  const { data: workerSallary } = useGetWorkersSallary();
   const route = useRouter();
 
   const { mutate: deleteModel } = useDeleteModelMutation();
@@ -46,6 +48,7 @@ const ModelsDashboard = () => {
     setIsModelModalOpen(true);
   };
 
+  console.log(workerSallary);
   const handleDeleteWorkerClick = (workerId: string) => {
     setSelectedWorkerId(workerId);
     setIsWorkerModalOpen(true);
@@ -269,10 +272,12 @@ const ModelsDashboard = () => {
                 .reverse()
                 .map((item) => (
                   <div
-                    className="w-full h-20 relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                    className="w-full h-20 justify-between px-12 pr-20  relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
                     key={item.id}
                   >
-                    {item.createdAt}
+                    <h1 className="text-2xl">{item.createdAt}</h1>
+                    <h1 className="text-2xl">{item.status}</h1>
+                    <h1 className="text-2xl">{item.total}$</h1>
                     <FaEdit
                       className="text-green-600 absolute right-9 cursor-pointer"
                       onClick={() =>
