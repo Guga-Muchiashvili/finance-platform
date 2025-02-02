@@ -206,20 +206,16 @@ export const getModelDashboardData = async () => {
     ).toFixed(1);
 
     function calculateStreak(transactions: IEarning[]) {
-      // Get today's date as a string in 'MM/DD/YYYY' format
       const today = new Date().toLocaleDateString();
 
-      // Check if there's a transaction today
       const transactionDates = transactions.map((transaction) =>
         new Date(transaction.createdAt).toLocaleDateString()
       );
 
-      // If there's no transaction today, return 0
       if (!transactionDates.includes(today)) {
         return 0;
       }
 
-      // Sort transactions by the created date in descending order
       transactions.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -233,13 +229,12 @@ export const getModelDashboardData = async () => {
           transaction.createdAt
         ).toLocaleDateString();
 
-        // Check if this is the first transaction or if the current date is consecutive to the last one
         if (lastTransactionDate === null) {
-          streak = 1; // First transaction
+          streak = 1;
         } else if (isConsecutive(lastTransactionDate, currentTransactionDate)) {
-          streak++; // Increment streak if consecutive
+          streak++;
         } else {
-          break; // Reset streak if there is a gap
+          break;
         }
 
         lastTransactionDate = currentTransactionDate;
@@ -252,7 +247,6 @@ export const getModelDashboardData = async () => {
       const last = new Date(lastDate);
       const current = new Date(currentDate);
 
-      // Check if the current date is exactly one day after the last transaction
       current.setDate(current.getDate() - 1);
       return last.toLocaleDateString() === current.toLocaleDateString();
     }
