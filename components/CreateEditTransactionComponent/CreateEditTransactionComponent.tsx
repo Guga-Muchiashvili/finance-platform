@@ -22,7 +22,6 @@ const CreateEditTransaction = ({
   defaultValues: IFormEarning;
   id?: string;
 }) => {
-  console.log(defaultValues.status);
   const { data: models } = useGetModels();
   const { data: workers } = useGetWorkers();
   const route = useRouter();
