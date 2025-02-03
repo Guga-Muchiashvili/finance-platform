@@ -252,7 +252,28 @@ const ModelsDashboard = () => {
           </div>
         </div>
       </div>
-
+      <div className="w-full flex flex-col gap-4 mt-14">
+        <h1 className="text-2xl text-blue-600">Workers Sallary</h1>
+        <div className="">
+          <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {workerSallary
+                ?.filter((item) => item.name !== "Admin")
+                .map((item) => (
+                  <div
+                    className="w-full h-20 justify-between px-12 pr-20  relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                    key={item.id}
+                  >
+                    <h1 className="text-2xl w-32">{item.name}</h1>
+                    <h1 className="text-2xl text-right w-36 flex items-center justify-center ">
+                      {item.amountDue}$
+                    </h1>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="w-full flex flex-col gap-4 mt-14">
         <h1 className="text-2xl text-blue-600">All transactions</h1>
         <div className="grid grid-cols-2 gap-4">
@@ -275,9 +296,11 @@ const ModelsDashboard = () => {
                     className="w-full h-20 justify-between px-12 pr-20  relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
                     key={item.id}
                   >
+                    <h1 className="text-2xl">{item.lead}</h1>
                     <h1 className="text-2xl">{item.createdAt}</h1>
                     <h1 className="text-2xl">{item.status}</h1>
                     <h1 className="text-2xl">{item.total}$</h1>
+                    <h1 className="text-2xl">{item.percentage}%</h1>
                     <FaEdit
                       className="text-green-600 absolute right-9 cursor-pointer"
                       onClick={() =>

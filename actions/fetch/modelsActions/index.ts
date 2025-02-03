@@ -252,7 +252,6 @@ export const getModelDashboardData = async () => {
     }
 
     const streak = calculateStreak(earnings);
-    console.log(streak, "streak");
 
     return {
       moneyIn,
@@ -494,40 +493,6 @@ export async function deleteTransaction(id: string): Promise<void> {
   }
 }
 
-export async function calculateWorkerPayment(
-  workerId: string
-): Promise<number> {
-  try {
-    const earnings = await mainPrisma.earning.findMany({
-      where: {
-        workerId,
-        status: { not: "completed" },
-      },
-    });
-
-    if (!earnings.length) {
-      return 0;
-    }
-
-    const totalPayment = earnings.reduce((sum, earning) => {
-      const transactionAmount = parseFloat(earning.amount.toString());
-      const percentage = parseFloat(earning.percentage);
-
-      if (isNaN(transactionAmount) || isNaN(percentage)) {
-        console.warn(`Invalid earning data for worker ${workerId}:`, earning);
-        return sum;
-      }
-
-      return sum + (transactionAmount * percentage) / 100;
-    }, 0);
-
-    return totalPayment;
-  } catch (error) {
-    console.error("Error calculating worker payment:", error);
-    throw error;
-  }
-}
-
 export async function calculatePaymentsForAllWorkers(): Promise<
   { id: string; name: string; modelId: string; amountDue: string }[]
 > {
@@ -562,7 +527,7 @@ export async function calculatePaymentsForAllWorkers(): Promise<
           return sum;
         }
 
-        return sum + (transactionAmount * Number(percentage - 3)) / 100;
+        return sum + (transactionAmount * Number(percentage - 3.5)) / 100;
       }, 0);
 
       return {

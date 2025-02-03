@@ -84,7 +84,7 @@ const CreateEditTransaction = ({
               options={[
                 { label: "completed", value: "Completed" },
                 { label: "hold", value: "Hold" },
-                { label: "balance", value: "Balance" },
+                { label: "balance", value: "balance" },
               ]}
             />
             <TextFieldElementComponent label="percentage" name="percentage" />
