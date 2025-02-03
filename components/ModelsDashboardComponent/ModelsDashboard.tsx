@@ -48,7 +48,6 @@ const ModelsDashboard = () => {
     setIsModelModalOpen(true);
   };
 
-  console.log(workerSallary);
   const handleDeleteWorkerClick = (workerId: string) => {
     setSelectedWorkerId(workerId);
     setIsWorkerModalOpen(true);
