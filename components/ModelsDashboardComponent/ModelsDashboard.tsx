@@ -267,6 +267,9 @@ const ModelsDashboard = () => {
                     <h1 className="text-2xl text-right w-36 flex items-center justify-center ">
                       {item.amountDue}$
                     </h1>
+                    <h1 className="text-2xl w-32">
+                      paid : {item.totalSalaryPaid}$
+                    </h1>
                   </div>
                 ))}
             </div>

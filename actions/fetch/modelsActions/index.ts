@@ -31,13 +31,21 @@ export const getModelDashboardData = async () => {
 
     const ourShare = earnings
       .reduce((sum, earning) => {
-        return sum + parseFloat(earning.total) * 0.4;
+        return (
+          sum +
+          (parseFloat(earning.total) * (100 - parseFloat(earning.percentage))) /
+            100
+        );
       }, 0)
       .toFixed(1);
 
     const ourShareBroughtOut = completedEarnings
       .reduce((sum, earning) => {
-        return sum + parseFloat(earning.total) * 0.4;
+        return (
+          sum +
+          (parseFloat(earning.total) * (100 - parseFloat(earning.percentage))) /
+            100
+        );
       }, 0)
       .toFixed(1);
 
@@ -494,17 +502,32 @@ export async function deleteTransaction(id: string): Promise<void> {
 }
 
 export async function calculatePaymentsForAllWorkers(): Promise<
-  { id: string; name: string; modelId: string; amountDue: string }[]
+  {
+    id: string;
+    name: string;
+    modelId: string;
+    amountDue: string;
+    totalSalaryPaid: string;
+  }[]
 > {
   try {
     const workers = await mainPrisma.worker.findMany();
 
+    // Fetch earnings that are not completed
     const earnings = await mainPrisma.earning.findMany({
       where: {
         status: { not: "completed" },
       },
     });
 
+    // Fetch completed earnings (salary already paid)
+    const completedEarnings = await mainPrisma.earning.findMany({
+      where: {
+        status: "completed",
+      },
+    });
+
+    // Group earnings by worker ID
     const earningsByWorker: Record<string, typeof earnings> = {};
     earnings.forEach((earning) => {
       if (!earningsByWorker[earning.workerId]) {
@@ -513,8 +536,20 @@ export async function calculatePaymentsForAllWorkers(): Promise<
       earningsByWorker[earning.workerId].push(earning);
     });
 
+    const completedEarningsByWorker: Record<string, typeof completedEarnings> =
+      {};
+    completedEarnings.forEach((earning) => {
+      if (!completedEarningsByWorker[earning.workerId]) {
+        completedEarningsByWorker[earning.workerId] = [];
+      }
+      completedEarningsByWorker[earning.workerId].push(earning);
+    });
+
     const workerPayments = workers.map((worker) => {
       const workerEarnings = earningsByWorker[worker.id] || [];
+      const completedWorkerEarnings =
+        completedEarningsByWorker[worker.id] || [];
+
       const amountDue = workerEarnings.reduce((sum, earning) => {
         const transactionAmount = parseFloat(earning.total.toString());
         const percentage = Number(earning.percentage);
@@ -530,11 +565,26 @@ export async function calculatePaymentsForAllWorkers(): Promise<
         return sum + (transactionAmount * Number(percentage - 3.5)) / 100;
       }, 0);
 
+      const totalSalaryPaid = completedWorkerEarnings.reduce((sum, earning) => {
+        const percentage = Number(earning.percentage);
+
+        const transactionAmount = parseFloat(earning.total.toString());
+        if (isNaN(transactionAmount)) {
+          console.warn(
+            `Invalid completed earning data for worker ${worker.id}:`,
+            earning
+          );
+          return sum;
+        }
+        return sum + (transactionAmount * Number(percentage - 3.5)) / 100;
+      }, 0);
+
       return {
         id: worker.id,
         name: worker.name,
         modelId: worker.modelId,
         amountDue: amountDue.toFixed(1),
+        totalSalaryPaid: totalSalaryPaid.toFixed(1),
       };
     });
 
