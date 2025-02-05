@@ -513,21 +513,18 @@ export async function calculatePaymentsForAllWorkers(): Promise<
   try {
     const workers = await mainPrisma.worker.findMany();
 
-    // Fetch earnings that are not completed
     const earnings = await mainPrisma.earning.findMany({
       where: {
         status: { not: "completed" },
       },
     });
 
-    // Fetch completed earnings (salary already paid)
     const completedEarnings = await mainPrisma.earning.findMany({
       where: {
         status: "completed",
       },
     });
 
-    // Group earnings by worker ID
     const earningsByWorker: Record<string, typeof earnings> = {};
     earnings.forEach((earning) => {
       if (!earningsByWorker[earning.workerId]) {
