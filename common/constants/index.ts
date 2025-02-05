@@ -10,4 +10,4 @@ export const Routes = [
   { route: "Dropshipping", icon: FaBoxOpen },
 ];
 
-export const timePeriods = ["overall", "last Month", "last Week"];
+export const timePeriods = ["overall"];
