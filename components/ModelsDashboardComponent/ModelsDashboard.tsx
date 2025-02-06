@@ -325,14 +325,14 @@ const ModelsDashboard = () => {
               </button>
             </div>
             <div className="h-[40vh] overflow-y-auto hide-scrollbar">
-              {DashboardData?.transactions.map((item) => (
+              {/* {DashboardData?.transactions.map((item) => (
                 <div
                   className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
                   key={item.id}
                 >
                   {item.createdAt}
                 </div>
-              ))}
+              ))} */}
             </div>
           </div>
         </div>
