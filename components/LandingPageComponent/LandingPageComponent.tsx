@@ -2,18 +2,12 @@
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
 import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
-import { timePeriods } from "@/common/constants";
-import { useState } from "react";
 import { motion } from "framer-motion";
 import PaymentBoxElement from "./elements/PaymentBoxElement";
 import LoseBoxElement from "./elements/LoseBoxElement";
 import { useGetDashboardData } from "@/queries/useGetDashboardData/useGetDashboardData";
 
 export default function LandingPageComponent() {
-  const [filter, setfilter] = useState<"overall" | "last Month" | "last Week">(
-    "overall"
-  );
-
   const { data } = useGetDashboardData();
 
   return (
@@ -21,27 +15,18 @@ export default function LandingPageComponent() {
       <div className="w-full h-20 flex items-center justify-between">
         <h1 className="text-4xl text-blue-600">Ai Agency / Dashboard</h1>
         <div className={`w-fit flex items-center gap-2 flex-wrap`}>
-          {timePeriods.map((item, i) => (
-            <motion.h1
-              initial={{ opacity: 0, translateX: 10 }}
-              animate={{ opacity: 1, translateX: 0 }}
-              transition={{
-                duration: 1,
-                delay: i * 0.2,
-              }}
-              key={item}
-              className={`${
-                filter === item
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-blue-600"
-              } px-1 lg:px-3 py-[6px] rounded-xl cursor-pointer duration-500 font-bebas text-sm lg:text-xl`}
-              onClick={() =>
-                setfilter(item as "overall" | "last Month" | "last Week")
-              }
-            >
-              {item}
-            </motion.h1>
-          ))}
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 1,
+            }}
+            className={`
+           bg-blue-600 text-white
+            px-3 py-2 rounded-xl cursor-pointer duration-500 font-bebas text-xl`}
+          >
+            Overall
+          </motion.h1>
         </div>
       </div>
       <div className="w-full h-[20vh] text-blue-600 flex flex-col gap-4">

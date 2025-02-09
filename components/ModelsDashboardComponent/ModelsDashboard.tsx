@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { timePeriods } from "@/common/constants";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
 import { useGetModelDashboardData } from "@/queries/useGetModelDashboardData/useGetModelDashboardData";
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
@@ -14,7 +13,6 @@ import useDeleteTransactionMutation from "@/mutations/ModelMutations/DeleteTrans
 import { useGetWorkersSallary } from "@/queries/useGetPaymentAmount/useGetPaymentAmount";
 
 const ModelsDashboard = () => {
-  const [filter, setFilter] = useState("overall");
   const { data: DashboardData } = useGetModelDashboardData();
   const { data: workerSallary } = useGetWorkersSallary();
   const route = useRouter();
@@ -84,27 +82,18 @@ const ModelsDashboard = () => {
       <div className="w-full h-20 flex items-center justify-between">
         <h1 className="text-4xl text-blue-600">Ai Agency / Models</h1>
         <div className="w-fit flex items-center gap-2 flex-wrap">
-          {timePeriods.map((item, i) => (
-            <motion.h1
-              initial={{ opacity: 0, translateX: 10 }}
-              animate={{ opacity: 1, translateX: 0 }}
-              transition={{
-                duration: 1,
-                delay: i * 0.2,
-              }}
-              key={item}
-              className={`${
-                filter === item
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-blue-600"
-              } px-3 py-2 rounded-xl cursor-pointer duration-500 font-bebas text-xl`}
-              onClick={() =>
-                setFilter(item as "overall" | "last Month" | "last Week")
-              }
-            >
-              {item}
-            </motion.h1>
-          ))}
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 1,
+            }}
+            className={`
+              bg-blue-600 text-white
+               px-3 py-2 rounded-xl cursor-pointer duration-500 font-bebas text-xl`}
+          >
+            Overall
+          </motion.h1>
         </div>
       </div>
 
@@ -324,16 +313,7 @@ const ModelsDashboard = () => {
                 Add Expense
               </button>
             </div>
-            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
-              {/* {DashboardData?.transactions.map((item) => (
-                <div
-                  className="w-full h-20 mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
-                  key={item.id}
-                >
-                  {item.createdAt}
-                </div>
-              ))} */}
-            </div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar"></div>
           </div>
         </div>
       </div>
