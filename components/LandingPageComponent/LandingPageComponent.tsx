@@ -54,13 +54,13 @@ export default function LandingPageComponent() {
         <div className="flex justify-center gap-4 items-center">
           <div className="w-[35%]">
             <BarChartComponent
-              label={["Models", "Discord", "Dropshipping"]}
+              label={["Models", "Discord"]}
               chartData={data?.chartData as number[]}
             />
           </div>
           <div className="w-[33%]">
             <PieChartComponent
-              label={["Models", "Discord", "Dropshipping"]}
+              label={["Models", "Discord"]}
               chartData={data?.chartData as number[]}
             />
           </div>
