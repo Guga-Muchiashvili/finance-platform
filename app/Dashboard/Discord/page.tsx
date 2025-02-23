@@ -1,7 +1,8 @@
+import DiscordComponent from "@/components/DiscordComponent/DiscordComponent";
 import React from "react";
 
 const page = () => {
-  return <div>page</div>;
+  return <DiscordComponent />;
 };
 
 export default page;
