@@ -17,6 +17,7 @@ model Source {
 
   model Transactions {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  lead         String
   workers      String[]
   createdAt    String
   status       String

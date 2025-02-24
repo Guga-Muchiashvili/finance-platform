@@ -5,7 +5,7 @@ import PieChartComponent from "@/common/components/PieChartComponent/PieChartCom
 import { motion } from "framer-motion";
 import PaymentBoxElement from "./elements/PaymentBoxElement";
 import LoseBoxElement from "./elements/LoseBoxElement";
-import { useGetDashboardData } from "@/queries/useGetDashboardData/useGetDashboardData";
+import { useGetDashboardData } from "@/queries/DashboardQueries/useGetDashboardData/useGetDashboardData";
 
 export default function LandingPageComponent() {
   const { data } = useGetDashboardData();

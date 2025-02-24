@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
-import { useGetModelDashboardData } from "@/queries/useGetModelDashboardData/useGetModelDashboardData";
+import { useGetModelDashboardData } from "@/queries/DashboardQueries/useGetModelDashboardData/useGetModelDashboardData";
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
 import { useRouter } from "next/navigation";
@@ -10,7 +10,7 @@ import useDeleteModelMutation from "@/mutations/ModelMutations/DeleteModel";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import useDeleteWorker from "@/mutations/ModelMutations/DeleteWorker";
 import useDeleteTransactionMutation from "@/mutations/ModelMutations/DeleteTransaction";
-import { useGetWorkersSallary } from "@/queries/useGetPaymentAmount/useGetPaymentAmount";
+import { useGetWorkersSallary } from "@/queries/DashboardQueries/useGetPaymentAmount/useGetPaymentAmount";
 import useDeleteLeadlMutation from "@/mutations/ModelMutations/DeleteLead";
 import ConfirmationModal from "./elements/ConfirmationModal";
 
