@@ -84,3 +84,32 @@ export async function fetchTransactionById(id: string) {
     throw error;
   }
 }
+
+export async function fetchLeaqds() {
+  try {
+    const Leads = await mainPrisma.lead.findMany();
+    return Leads;
+  } catch (error) {
+    console.error("Error fetching Leads:", error);
+    throw error;
+  }
+}
+
+export async function fetchLeadById(id: string) {
+  try {
+    const Lead = await mainPrisma.lead.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!Lead) {
+      throw new Error(`Lead with id ${id} not found.`);
+    }
+
+    return Lead;
+  } catch (error) {
+    console.error("Error fetching Lead:", error);
+    throw error;
+  }
+}

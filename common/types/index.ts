@@ -1,3 +1,5 @@
+import { JsonValue } from "@prisma/client/runtime/library";
+
 export interface Itransaction {
   id: string;
   amount: number;
@@ -92,4 +94,26 @@ export interface IEarning {
   total: string;
   workerId: string;
   id: string;
+}
+
+export interface ILead {
+  modelId: string[];
+  workerId: string;
+  img: string;
+  id: string;
+  description: string;
+  name: string;
+  notes: JsonValue;
+  active: boolean;
+  seen: boolean;
+}
+
+export interface IFormLead {
+  name: string;
+  img: string;
+  modelId: string[];
+  workerId: string;
+  active: boolean;
+  seen: boolean;
+  description: string;
 }

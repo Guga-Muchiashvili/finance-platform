@@ -11,6 +11,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import useDeleteWorker from "@/mutations/ModelMutations/DeleteWorker";
 import useDeleteTransactionMutation from "@/mutations/ModelMutations/DeleteTransaction";
 import { useGetWorkersSallary } from "@/queries/useGetPaymentAmount/useGetPaymentAmount";
+import useDeleteLeadlMutation from "@/mutations/ModelMutations/DeleteLead";
+import ConfirmationModal from "./elements/ConfirmationModal";
 
 const ModelsDashboard = () => {
   const { data: DashboardData } = useGetModelDashboardData();
@@ -20,12 +22,15 @@ const ModelsDashboard = () => {
   const { mutate: deleteModel } = useDeleteModelMutation();
   const { mutate: deleteWorker } = useDeleteWorker();
   const { mutate: deleteTransaction } = useDeleteTransactionMutation();
+  const { mutate: deleteLead } = useDeleteLeadlMutation();
 
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
+  const [isLeadModelOpen, setIsLeadModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
   const [selectedWorkerId, setSelectedWorkerId] = useState("");
+  const [selectedLeadId, setSelectedLeadId] = useState("");
   const [selectedTransactionId, setSelectedTransactionId] = useState("");
 
   const ModelLabels =
@@ -51,6 +56,11 @@ const ModelsDashboard = () => {
     setIsWorkerModalOpen(true);
   };
 
+  const handleDeleteLeadClick = (leadId: string) => {
+    setSelectedLeadId(leadId);
+    setIsLeadModalOpen(true);
+  };
+
   const handleDeleteTransactionClick = (transactionId: string) => {
     setSelectedTransactionId(transactionId);
     setIsTransactionModalOpen(true);
@@ -59,6 +69,11 @@ const ModelsDashboard = () => {
   const handleConfirmModelDelete = () => {
     if (selectedModelId) deleteModel(selectedModelId);
     setIsModelModalOpen(false);
+  };
+
+  const handleConfirmLeadDelete = () => {
+    if (selectedLeadId) deleteLead(selectedLeadId);
+    setIsLeadModalOpen(false);
   };
 
   const handleConfirmWorkerDelete = () => {
@@ -74,6 +89,7 @@ const ModelsDashboard = () => {
   const handleCancelDelete = () => {
     setIsModelModalOpen(false);
     setIsWorkerModalOpen(false);
+    setIsLeadModalOpen(false);
     setIsTransactionModalOpen(false);
   };
 
@@ -240,6 +256,46 @@ const ModelsDashboard = () => {
           </div>
         </div>
       </div>
+      <div className="w-full flex flex-col gap-4">
+        <h1 className="text-2xl text-blue-600">Active Leads</h1>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="w-full md:w-[58%]">
+            <BarChartComponent
+              chartData={DashboardData?.LeadchartData}
+              label={DashboardData?.Leadlabels}
+            />
+          </div>
+          <div className="w-full md:w-[58%] bg-white rounded-xl p-3 shadow">
+            <div className="flex justify-between mb-2">
+              <h1 className="text-2xl">Leads</h1>
+              <button
+                className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl"
+                onClick={() => route.push("/Dashboard/Models/Worker/create")}
+              >
+                Add Lead
+              </button>
+            </div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DashboardData?.leads?.map((item) => (
+                <div
+                  className="w-full h-20 mt-4 flex relative items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  {item.name}
+                  <FaEdit
+                    className="text-green-600 absolute right-9 cursor-pointer"
+                    onClick={() => route.push(`Models/Worker/edit/${item.id}`)}
+                  />
+                  <FaTrash
+                    className="text-red-500 absolute right-3 cursor-pointer"
+                    onClick={() => handleDeleteLeadClick(item.id)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="w-full flex flex-col gap-4 mt-14">
         <h1 className="text-2xl text-blue-600">Workers Sallary</h1>
         <div className="">
@@ -339,74 +395,33 @@ const ModelsDashboard = () => {
       </div>
 
       {isModelModalOpen && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl p-6">
-            <h1 className="text-2xl">
-              Are you sure you want to delete this model?
-            </h1>
-            <div className="flex gap-4 mt-4">
-              <button
-                className="bg-red-600 text-white px-4 py-2 rounded-xl"
-                onClick={handleConfirmModelDelete}
-              >
-                Yes, Delete
-              </button>
-              <button
-                className="bg-gray-300 px-4 py-2 rounded-xl"
-                onClick={handleCancelDelete}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmModelDelete}
+          title="Are you sure you want to delete this Model?"
+        />
+      )}
+      {isLeadModelOpen && (
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmLeadDelete}
+          title="Are you sure you want to delete this Lead?"
+        />
       )}
 
       {isTransactionModalOpen && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl p-6">
-            <h1 className="text-2xl">
-              Are you sure you want to delete this transaction?
-            </h1>
-            <div className="flex gap-4 mt-4 justify-end">
-              <button
-                className="bg-red-600 text-white px-4 py-2 rounded-xl"
-                onClick={handleConfirmTransactionDelete}
-              >
-                Yes, Delete
-              </button>
-              <button
-                className="bg-gray-300 px-4 py-2 rounded-xl"
-                onClick={handleCancelDelete}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmTransactionDelete}
+          title="Are you sure you want to delete this transaction?"
+        />
       )}
       {isWorkerModalOpen && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl p-6">
-            <h1 className="text-2xl">
-              Are you sure you want to delete this worker?
-            </h1>
-            <div className="flex gap-4 mt-4 justify-end">
-              <button
-                className="bg-red-600 text-white px-4 py-2 rounded-xl"
-                onClick={handleConfirmWorkerDelete}
-              >
-                Yes, Delete
-              </button>
-              <button
-                className="bg-gray-300 px-4 py-2 rounded-xl"
-                onClick={handleCancelDelete}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmWorkerDelete}
+          title="Are you sure you want to delete this worker?"
+        />
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 import {
   IEarning,
   IFormEarning,
+  IFormLead,
   IFormModel,
   IFormWorker,
   Itransaction,
@@ -11,10 +12,11 @@ import { mainPrisma } from "../../../common/lib/db";
 
 export const getModelDashboardData = async () => {
   try {
-    const [earnings, workers, models] = await Promise.all([
+    const [earnings, workers, models, leads] = await Promise.all([
       mainPrisma.earning.findMany(),
       mainPrisma.worker.findMany(),
       mainPrisma.model.findMany(),
+      mainPrisma.lead.findMany(),
     ]);
 
     const moneyIn = earnings
@@ -261,6 +263,26 @@ export const getModelDashboardData = async () => {
 
     const streak = calculateStreak(earnings);
 
+    const activeLeads = leads.filter((lead) => lead.active);
+    const modelLeadCounts: Record<string, number> = {};
+
+    activeLeads.forEach((lead) => {
+      lead.modelId.forEach((modelId) => {
+        if (!modelLeadCounts[modelId]) {
+          modelLeadCounts[modelId] = 0;
+        }
+        modelLeadCounts[modelId]++;
+      });
+    });
+
+    // Generate chart data for leads by model
+    const leadChartData = models.map((model) => {
+      return modelLeadCounts[model.id] || 0;
+    });
+
+    const Leadlabels = models.map((model) => model.name);
+    const LeadchartData = leadChartData;
+
     return {
       moneyIn,
       moneyOut,
@@ -273,6 +295,9 @@ export const getModelDashboardData = async () => {
       workerChartData,
       monthlyTransactions,
       totalTransactionFee,
+      Leadlabels,
+      leads,
+      LeadchartData,
       ModelsPieData: modelTransaction,
       WorkersPieData: workerTransaction,
       moneyByMonth: Object.entries(monthlyTransactions).map(
@@ -457,6 +482,68 @@ export async function addTransaction(
   }
 }
 
+export const createLead = async ({
+  name,
+  img,
+  modelId,
+  workerId,
+  active,
+  seen,
+  description,
+}: IFormLead) => {
+  try {
+    const worker = await mainPrisma.worker.findFirst({
+      where: { name: workerId },
+    });
+
+    if (!worker) {
+      throw new Error("Worker not found");
+    }
+
+    const newLead = await mainPrisma.lead.create({
+      data: {
+        name,
+        img,
+        modelId,
+        workerId: worker.id,
+        active,
+        seen,
+        description,
+        notes: JSON.stringify(""),
+      },
+    });
+
+    return newLead;
+  } catch (error) {
+    console.error("Error creating lead:", error);
+    throw new Error("Failed to create lead");
+  }
+};
+
+export async function editLead(
+  id: string,
+  updatedData: IFormLead
+): Promise<IFormLead> {
+  try {
+    const LeadToEdit = await mainPrisma.lead.findUnique({
+      where: { id },
+    });
+
+    if (!LeadToEdit) {
+      throw new Error(`Lead with ID ${id} not found.`);
+    }
+
+    const updatedLead = await mainPrisma.lead.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedLead;
+  } catch (error) {
+    console.error("Error editing Lead:", error);
+    throw error;
+  }
+}
 export async function editTransaction(
   id: string,
   updatedData: IFormEarning
@@ -497,6 +584,24 @@ export async function deleteTransaction(id: string): Promise<void> {
     });
   } catch (error) {
     console.error("Error deleting transaction:", error);
+    throw error;
+  }
+}
+export async function deleteLead(id: string): Promise<void> {
+  try {
+    const LeadToDelete = await mainPrisma.lead.findUnique({
+      where: { id },
+    });
+
+    if (!LeadToDelete) {
+      throw new Error(`Lead with ID ${id} not found.`);
+    }
+
+    await mainPrisma.lead.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting Lead:", error);
     throw error;
   }
 }
