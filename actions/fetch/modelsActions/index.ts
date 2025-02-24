@@ -493,7 +493,7 @@ export const createLead = async ({
 }: IFormLead) => {
   try {
     const worker = await mainPrisma.worker.findFirst({
-      where: { name: workerId },
+      where: { id: workerId },
     });
 
     if (!worker) {

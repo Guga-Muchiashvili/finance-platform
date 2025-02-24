@@ -2,7 +2,7 @@ import { deleteWorker } from "@/actions/fetch/modelsActions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export default function useDeleteWorker() {
+export default function useDeleteWorkerMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({

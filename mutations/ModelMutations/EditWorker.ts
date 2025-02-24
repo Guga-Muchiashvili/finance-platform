@@ -4,7 +4,7 @@ import { IFormWorker } from "@/common/types";
 import { useRouter } from "next/navigation";
 import { editWorker } from "@/actions/fetch/modelsActions";
 
-export default function useEditWorker() {
+export default function useEditWorkerMutation() {
   const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation<

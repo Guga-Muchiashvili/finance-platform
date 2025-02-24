@@ -4,7 +4,7 @@ import { IFormEarning } from "@/common/types";
 import { useRouter } from "next/navigation";
 import { editTransaction } from "@/actions/fetch/modelsActions";
 
-export default function useEditTransaction() {
+export default function useEditTransactionMutation() {
   const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation<

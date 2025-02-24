@@ -270,7 +270,7 @@ const ModelsDashboard = () => {
               <h1 className="text-2xl">Leads</h1>
               <button
                 className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl"
-                onClick={() => route.push("/Dashboard/Models/Worker/create")}
+                onClick={() => route.push("/Dashboard/Models/Lead/create")}
               >
                 Add Lead
               </button>
@@ -284,7 +284,7 @@ const ModelsDashboard = () => {
                   {item.name}
                   <FaEdit
                     className="text-green-600 absolute right-9 cursor-pointer"
-                    onClick={() => route.push(`Models/Worker/edit/${item.id}`)}
+                    onClick={() => route.push(`Models/Lead/edit/${item.id}`)}
                   />
                   <FaTrash
                     className="text-red-500 absolute right-3 cursor-pointer"

@@ -1,4 +1,9 @@
-import { IFormEarning, IFormModel, IFormWorker } from "@/common/types";
+import {
+  IFormEarning,
+  IFormLead,
+  IFormModel,
+  IFormWorker,
+} from "@/common/types";
 import React from "react";
 import { FormProvider, UseFormReturn, FieldValues } from "react-hook-form";
 
@@ -8,7 +13,9 @@ export interface FormComponentProps<T extends FieldValues> {
   submit: React.FormEventHandler<HTMLFormElement>;
 }
 
-const FormComponent = <T extends IFormModel | IFormWorker | IFormEarning>({
+const FormComponent = <
+  T extends IFormModel | IFormWorker | IFormEarning | IFormLead
+>({
   children,
   methods,
   submit,
