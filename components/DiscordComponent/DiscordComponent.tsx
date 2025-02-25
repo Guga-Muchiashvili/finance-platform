@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { useGetModelDashboardData } from "@/queries/DashboardQueries/useGetModelDashboardData/useGetModelDashboardData";
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
 import { FaEdit, FaTrash } from "react-icons/fa";
@@ -9,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useGetDiscordDashboardData } from "@/queries/DiscordQueries/useGetDiscordDasboardData/useGetDiscordDashboardData";
 
 const DiscordComponent = () => {
-  const { data: DashboardData } = useGetModelDashboardData();
   const { data: DiscordData } = useGetDiscordDashboardData();
 
   const route = useRouter();
@@ -64,8 +62,13 @@ const DiscordComponent = () => {
           </div>
           <div className="w-full md:w-1/2">
             <LineChartComponent
-              label={DashboardData?.chartLabels}
-              datas={DashboardData?.modelChartData}
+              datas={[
+                {
+                  label: "Discord Transactions",
+                  data: DiscordData?.dataLineChart.data || [],
+                },
+              ]}
+              label={DiscordData?.dataLineChart.labels}
             />
           </div>
         </div>
@@ -95,8 +98,13 @@ const DiscordComponent = () => {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-[58%]">
             <LineChartComponent
-              label={DashboardData?.chartLabels}
-              datas={DashboardData?.workerChartData}
+              datas={[
+                {
+                  label: "Discord Transactions",
+                  data: DiscordData?.dataLineChart.data || [],
+                },
+              ]}
+              label={DiscordData?.dataLineChart.labels}
             />
           </div>
           <div className="w-full md:w-[58%] bg-white rounded-xl p-3 shadow">
@@ -110,7 +118,7 @@ const DiscordComponent = () => {
               </button>
             </div>
             <div className="h-[40vh] overflow-y-auto hide-scrollbar">
-              {DashboardData?.workers.map((item) => (
+              {DiscordData?.workers?.map((item) => (
                 <div
                   className="w-full h-20 mt-4 flex relative items-center border-[1px] shadow-lg rounded-xl p-3"
                   key={item.id}

@@ -71,6 +71,12 @@ model Worker {
   profit   String
 }
 
+model DiscordWorkers {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  earnings String[]
+  name     String
+}
+
 
 model Lead {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
