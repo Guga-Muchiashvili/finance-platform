@@ -58,6 +58,19 @@ export interface FormElementProps {
   label: string;
 }
 
+export interface IWorker {
+  id?: string;
+  earnings: string[];
+  modelId: string;
+  name: string;
+  profit: string;
+}
+export interface IDiscordWorker {
+  id?: string;
+  earnings: string[];
+  name: string;
+}
+
 export interface IFormWorker {
   earnings?: string[];
   modelId: string;
@@ -65,12 +78,9 @@ export interface IFormWorker {
   profit: string;
 }
 
-export interface IWorker {
-  id?: string;
-  earnings: string[];
-  modelId: string;
+export interface IFormDiscordWorker {
+  earnings?: string[];
   name: string;
-  profit: string;
 }
 
 export interface IFormEarning {
@@ -83,12 +93,31 @@ export interface IFormEarning {
   total: string;
   workerId: string;
 }
+export interface IFormDiscordEarning {
+  amount: number;
+  createdAt: string;
+  lead: string;
+  percentage: string;
+  status: string;
+  total: string;
+  workerId: string;
+}
 
 export interface IEarning {
   amount: number;
   createdAt: string;
   lead: string;
   modelId: string;
+  percentage: string;
+  status: string;
+  total: string;
+  workerId: string;
+  id: string;
+}
+export interface IDiscordEarning {
+  amount: number;
+  createdAt: string;
+  lead: string;
   percentage: string;
   status: string;
   total: string;

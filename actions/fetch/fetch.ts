@@ -85,7 +85,7 @@ export async function fetchTransactionById(id: string) {
   }
 }
 
-export async function fetchLeaqds() {
+export async function fetchLeads() {
   try {
     const Leads = await mainPrisma.lead.findMany();
     return Leads;
@@ -110,6 +110,65 @@ export async function fetchLeadById(id: string) {
     return Lead;
   } catch (error) {
     console.error("Error fetching Lead:", error);
+    throw error;
+  }
+}
+
+// DISCORD FETCH REQUESTS
+
+export async function fetchDiscordTransactions() {
+  try {
+    const DiscordTransactions = await mainPrisma.transactions.findMany();
+    return DiscordTransactions;
+  } catch (error) {
+    console.error("Error fetching DiscordTransactions:", error);
+    throw error;
+  }
+}
+
+export async function fetchDiscordTransactionById(id: string) {
+  try {
+    const DiscordTransaction = await mainPrisma.transactions.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!DiscordTransaction) {
+      throw new Error(`DiscordTransaction with id ${id} not found.`);
+    }
+
+    return DiscordTransaction;
+  } catch (error) {
+    console.error("Error fetching DiscordTransaction:", error);
+    throw error;
+  }
+}
+export async function fetchDiscorWorkers() {
+  try {
+    const DiscordWorkers = await mainPrisma.discordWorkers.findMany();
+    return DiscordWorkers;
+  } catch (error) {
+    console.error("Error fetching DiscordWorkers:", error);
+    throw error;
+  }
+}
+
+export async function FetchDiscordWorkersById(id: string) {
+  try {
+    const DiscordWorker = await mainPrisma.discordWorkers.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!DiscordWorker) {
+      throw new Error(`DiscordWorker with id ${id} not found.`);
+    }
+
+    return DiscordWorker;
+  } catch (error) {
+    console.error("Error fetching DiscordWorker:", error);
     throw error;
   }
 }

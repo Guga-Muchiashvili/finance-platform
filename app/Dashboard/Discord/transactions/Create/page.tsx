@@ -1,7 +1,25 @@
-import React from "react";
-
+"use client";
+import { IFormDiscordEarning } from "@/common/types";
+import dynamic from "next/dynamic";
+const CreateEditDiscordTransaction = dynamic(
+  () =>
+    import(
+      "@/components/CreateEditDiscordTransactionComponent/CreateEditDiscordTransactionComponent"
+    ),
+  { ssr: false }
+);
 const page = () => {
-  return <div>page</div>;
+  const defaultValues: IFormDiscordEarning = {
+    amount: 0,
+    createdAt: "",
+    lead: "",
+    percentage: "",
+    status: "",
+    total: "",
+    workerId: "",
+  };
+
+  return <CreateEditDiscordTransaction defaultValues={defaultValues} />;
 };
 
 export default page;

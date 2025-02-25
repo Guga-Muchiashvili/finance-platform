@@ -6,9 +6,12 @@ import { motion } from "framer-motion";
 import PaymentBoxElement from "./elements/PaymentBoxElement";
 import LoseBoxElement from "./elements/LoseBoxElement";
 import { useGetDashboardData } from "@/queries/DashboardQueries/useGetDashboardData/useGetDashboardData";
+import WorkerBoxElement from "./elements/WorkerBoxElement";
 
 export default function LandingPageComponent() {
   const { data } = useGetDashboardData();
+
+  console.log(data?.combinedWorkers);
 
   return (
     <div className="w-full flex flex-col gap-4 min-h-screen p-4 bg-gray-100">
@@ -109,7 +112,7 @@ export default function LandingPageComponent() {
       <div className="w-full h-1/2 flex flex-col text-blue-600 gap-4">
         <h1 className="text-2xl ">Transactions</h1>
         <div className="flex justify-center gap-4 items-center">
-          <div className="w-1/2 min-h-fit bg-white rounded-xl p-3">
+          <div className="w-1/3 min-h-fit bg-white rounded-xl p-3">
             <h1>All transaction</h1>
             <div className="w-full h-8 flex items-center justify-between px-7">
               <h1 className="w-1/4 text-center">Type</h1>
@@ -134,7 +137,26 @@ export default function LandingPageComponent() {
                 ))}
             </div>
           </div>
-          <div className="w-1/2 min-h-fit bg-white rounded-xl p-3">
+          <div className="w-1/3 min-h-fit bg-white rounded-xl p-3">
+            <h1>Workers</h1>
+            <div className="w-full h-8 flex items-center justify-between px-7">
+              <h1 className="w-1/4 text-center">Type</h1>
+              <h1 className="w-1/4 text-center">Name</h1>
+              <h1 className="w-1/4 text-center">Amount</h1>
+            </div>
+            <div className="h-72 w-full overflow-y-auto hide-scrollbar">
+              {data?.combinedWorkers?.map((item) => (
+                <WorkerBoxElement
+                  amount={item.earnings}
+                  name={item.name}
+                  type={item.type}
+                  key={item.name}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="w-1/3 min-h-fit bg-white rounded-xl p-3">
             <h1>Subscriptions</h1>
             <div className="w-full h-8 flex items-center justify-between px-7">
               <h1 className="w-1/4 text-center">Reason</h1>

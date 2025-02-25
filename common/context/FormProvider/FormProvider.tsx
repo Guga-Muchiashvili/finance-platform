@@ -1,4 +1,6 @@
 import {
+  IFormDiscordEarning,
+  IFormDiscordWorker,
   IFormEarning,
   IFormLead,
   IFormModel,
@@ -14,7 +16,13 @@ export interface FormComponentProps<T extends FieldValues> {
 }
 
 const FormComponent = <
-  T extends IFormModel | IFormWorker | IFormEarning | IFormLead
+  T extends
+    | IFormModel
+    | IFormWorker
+    | IFormEarning
+    | IFormLead
+    | IFormDiscordEarning
+    | IFormDiscordWorker
 >({
   children,
   methods,

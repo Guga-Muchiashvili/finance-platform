@@ -1,5 +1,5 @@
 "use server";
-import { INewTransaction, Itransaction } from "@/common/types";
+import { IDiscordEarning, Itransaction } from "@/common/types";
 import { mainPrisma } from "../../../common/lib/db";
 
 const parseDate = (dateString: string): Date => {
@@ -16,6 +16,51 @@ export async function fetchDashboardData() {
     const transactions = await mainPrisma.earning.findMany();
     const DiscordTransactions = await mainPrisma.transactions.findMany();
     const Losses = await mainPrisma.subscription.findMany();
+    const discordWorkers = await mainPrisma.discordWorkers.findMany();
+    const modelWorkers = await mainPrisma.worker.findMany();
+    const discordTransactions = await mainPrisma.transactions.findMany();
+    const modelEarnings = await mainPrisma.earning.findMany();
+
+    const combinedWorkers = [] as {
+      type: string;
+      name: string;
+      earnings: string;
+    }[];
+
+    discordWorkers.forEach((worker) => {
+      const totalEarnings = discordTransactions
+        .filter((transaction) => transaction.workerId === worker.id)
+        .reduce(
+          (sum, transaction) =>
+            sum +
+            (Number(transaction.total) * Number(transaction.percentage)) / 100,
+          0
+        );
+
+      combinedWorkers.push({
+        type: "discord Worker",
+        name: worker.name,
+        earnings: totalEarnings.toFixed(1),
+      });
+    });
+
+    modelWorkers.forEach((worker) => {
+      const totalEarnings = modelEarnings
+        .filter((earning) => earning.workerId === worker.id)
+        .reduce(
+          (sum, earning) =>
+            sum +
+            (Number(earning.total) * (Number(earning.percentage) - 3.5)) / 100,
+          0
+        );
+
+      if (worker.name == "Admin") return;
+      combinedWorkers.push({
+        type: "Model Worker",
+        name: worker.name,
+        earnings: totalEarnings.toFixed(1),
+      });
+    });
 
     let totalMoney = 0;
     let ourShare = 0;
@@ -91,7 +136,7 @@ export async function fetchDashboardData() {
     }
 
     const generateGroupedAmounts = (
-      transactions: Itransaction[] | INewTransaction[],
+      transactions: Itransaction[] | IDiscordEarning[],
       firstTransactionDate: Date
     ): MonthlyAmounts => {
       const monthlyAmounts: MonthlyAmounts = {};
@@ -352,6 +397,7 @@ export async function fetchDashboardData() {
       months,
       ourShareArray,
       totalArray,
+      combinedWorkers,
     };
   } catch (error) {
     console.error("Error fetching data:", error);

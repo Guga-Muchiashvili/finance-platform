@@ -2,35 +2,29 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { workerSchema } from "@/common/schema";
+import { DiscordworkerSchema } from "@/common/schema";
 import FormComponent from "@/common/context/FormProvider/FormProvider";
-import { IFormWorker } from "@/common/types";
+import { IFormDiscordWorker } from "@/common/types";
 import TextFieldElementComponent from "@/common/elements/TextFieldElement/TextFieldElement";
 import { usePathname, useRouter } from "next/navigation";
 import MultiSelectFieldElement from "@/common/elements/MulitSelectElement/MultiSelectElement";
-import { useGetTransactions } from "@/queries/DashboardQueries/useGetTransactions/useGetTransactions";
 import { FaArrowLeft } from "react-icons/fa";
-import { useGetModels } from "@/queries/DashboardQueries/useGetModelData/useGetModelData";
-import useAddWorkerMutation from "@/mutations/ModelMutations/CreateWorker";
-import DropdownFieldElement from "@/common/elements/DropdownElement/DropdownElement";
-import useEditWorker from "@/mutations/ModelMutations/EditWorker";
+import { useGetDiscordTransactions } from "@/queries/DiscordQueries/useGetDiscordTransaction/useGetDiscordTransaction";
+import useEditDiscordWorkerMutation from "@/mutations/DiscordMutations/EditDiscordWorker";
+import useAddDiscordWorkerMutation from "@/mutations/DiscordMutations/CreateDiscordWorker";
 
-const CreateEditWorkerComponent = ({
+const CreateEditDiscordWorker = ({
   defaultValues,
   id,
 }: {
-  defaultValues: IFormWorker;
+  defaultValues: IFormDiscordWorker;
   id?: string;
 }) => {
-  const { data: models } = useGetModels();
-  const { data: transactions } = useGetTransactions();
-  const { mutate: editWorker } = useEditWorker();
+  const { data: transactions } = useGetDiscordTransactions();
+  const { mutate: editWorker } = useEditDiscordWorkerMutation();
+  const { mutate: createWorker } = useAddDiscordWorkerMutation();
   const route = useRouter();
 
-  const ModelOptions = models?.map((item) => ({
-    label: item.name,
-    value: item.id,
-  }));
   const TransactionOptions = transactions
     ?.map((item) => ({
       label: `${item.lead + " " + item.createdAt + " " + item.amount}$`,
@@ -38,17 +32,15 @@ const CreateEditWorkerComponent = ({
     }))
     .reverse();
 
-  const methods = useForm<IFormWorker>({
-    resolver: yupResolver(workerSchema),
+  const methods = useForm<IFormDiscordWorker>({
+    resolver: yupResolver(DiscordworkerSchema),
     defaultValues,
   });
 
-  const { mutate: createWorker } = useAddWorkerMutation();
-
-  const onSubmit = async (data: IFormWorker) => {
-    if (currentPath.includes("create")) {
+  const onSubmit = async (data: IFormDiscordWorker) => {
+    if (currentPath.includes("Create")) {
       createWorker(data);
-    } else if (currentPath.includes("edit") && id) {
+    } else if (currentPath.includes("Edit") && id) {
       editWorker({ id, updatedData: data });
     }
   };
@@ -62,7 +54,7 @@ const CreateEditWorkerComponent = ({
       </h1>
       <h1
         className="text-blue-600 text-lg underline flex items-center gap-2 cursor-pointer"
-        onClick={() => route.push("/Dashboard/Models")}
+        onClick={() => route.push("/Dashboard/Discord")}
       >
         <FaArrowLeft className="text-sm" /> Go Back
       </h1>
@@ -71,11 +63,6 @@ const CreateEditWorkerComponent = ({
           <h1 className="text-2xl text-blue-600">Worker Information</h1>
           <div className="w-full h-fit gap-9 bg-white grid grid-cols-2 p-3 rounded-xl">
             <TextFieldElementComponent label="Name" name="name" />
-            <DropdownFieldElement
-              label="model"
-              name="modelId"
-              options={ModelOptions}
-            />
             <MultiSelectFieldElement
               label="earnings"
               name="earnings"
@@ -93,4 +80,4 @@ const CreateEditWorkerComponent = ({
   );
 };
 
-export default CreateEditWorkerComponent;
+export default CreateEditDiscordWorker;

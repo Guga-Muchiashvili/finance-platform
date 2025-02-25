@@ -18,12 +18,12 @@ model Source {
   model Transactions {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   lead         String
-  workers      String[]
+  workerId     String
   createdAt    String
   status       String
   total        String
   percentage   String
-  amount       String
+  amount       Float
 }
 
   model Subscription {
@@ -37,14 +37,14 @@ model Source {
 
   model Earning {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
+  lead       String
+  workerId   String @db.ObjectId
   amount     Float
   createdAt  String
-  lead       String
   modelId    String @db.ObjectId
   percentage String
   status     String
   total      String
-  workerId   String @db.ObjectId
 }
 
 model Model {

@@ -112,7 +112,7 @@ const DiscordComponent = () => {
               <h1 className="text-2xl">Workers</h1>
               <button
                 className="bg-blue-600 text-white h-10 rounded-xl px-3 py-1 text-xl"
-                onClick={() => route.push("/Dashboard/Models/Worker/create")}
+                onClick={() => route.push("/Dashboard/Discord/worker/Create")}
               >
                 Add Worker
               </button>
@@ -126,7 +126,7 @@ const DiscordComponent = () => {
                   {item.name}
                   <FaEdit
                     className="text-green-600 absolute right-9 cursor-pointer"
-                    onClick={() => route.push(`Models/Worker/edit/${item.id}`)}
+                    onClick={() => route.push(`Discord/worker/Edit/${item.id}`)}
                   />
                   <FaTrash className="text-red-500 absolute right-3 cursor-pointer" />
                 </div>
@@ -143,7 +143,7 @@ const DiscordComponent = () => {
               <h1 className="text-2xl">Transactions</h1>
               <button
                 className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl"
-                onClick={() => route.push("Models/transactions/create")}
+                onClick={() => route.push("Discord/transactions/Create")}
               >
                 Add Transaction
               </button>
@@ -162,7 +162,7 @@ const DiscordComponent = () => {
                   <FaEdit
                     className="text-green-600 absolute right-9 cursor-pointer"
                     onClick={() =>
-                      route.push(`Models/transactions/edit/${item.id}`)
+                      route.push(`Discord/transactions/edit/${item.id}`)
                     }
                   />
                   <FaTrash className="text-red-500 absolute right-3 cursor-pointer" />

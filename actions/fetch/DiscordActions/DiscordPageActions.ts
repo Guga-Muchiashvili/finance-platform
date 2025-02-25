@@ -1,8 +1,15 @@
 "use server";
+import {
+  IDiscordEarning,
+  IDiscordWorker,
+  IFormDiscordEarning,
+  IFormDiscordWorker,
+} from "@/common/types";
 import { mainPrisma } from "../../../common/lib/db";
 
 export async function getDiscordDashboardData() {
   const transactions = await mainPrisma.transactions.findMany();
+  console.log(transactions);
   const DiscordWorkers = await mainPrisma.discordWorkers.findMany();
 
   let totalIn = 0;
@@ -15,7 +22,7 @@ export async function getDiscordDashboardData() {
 
   transactions.forEach((tx) => {
     const total = parseFloat(tx.total);
-    const amount = parseFloat(tx.amount);
+    const amount = tx.amount;
     const percentage = parseFloat(tx.percentage);
 
     const [, month, year] = tx.createdAt.split("/").map(Number);
@@ -44,10 +51,8 @@ export async function getDiscordDashboardData() {
 
   const averageTransactionAmount = Number(
     transactions.length > 0
-      ? transactions.reduce(
-          (sum, tx) => sum + parseFloat(tx.amount || "0"),
-          0
-        ) / transactions.length
+      ? transactions.reduce((sum, tx) => sum + tx.amount, 0) /
+          transactions.length
       : 0
   ).toFixed(1);
 
@@ -127,7 +132,7 @@ export async function getDiscordDashboardData() {
     totalOut,
     ourShareTotal,
     ourShareOut,
-    totalFee,
+    totalFee: totalFee.toFixed(1),
     averageTransactionAmount,
     biggestTransaction,
     transactions,
@@ -139,4 +144,131 @@ export async function getDiscordDashboardData() {
       data: chartData,
     },
   };
+}
+
+export async function editDiscordWorker(
+  id: string,
+  updatedData: IFormDiscordWorker
+): Promise<IFormDiscordWorker> {
+  try {
+    const workerToEdit = await mainPrisma.discordWorkers.findUnique({
+      where: { id },
+    });
+
+    if (!workerToEdit) {
+      throw new Error(`Worker with ID ${id} not found.`);
+    }
+
+    const updatedWorker = await mainPrisma.discordWorkers.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedWorker;
+  } catch (error) {
+    console.error("Error editing worker:", error);
+    throw error;
+  }
+}
+
+export async function addDiscordWorker(
+  data: IFormDiscordWorker
+): Promise<IDiscordWorker> {
+  try {
+    const newWorker = await mainPrisma.discordWorkers.create({
+      data: { ...data },
+    });
+
+    return newWorker;
+  } catch (error) {
+    console.error("Error adding new worker:", error);
+    throw error;
+  }
+}
+
+export async function deletDiscordeWorker(id: string): Promise<void> {
+  try {
+    const workerToDelete = await mainPrisma.discordWorkers.findUnique({
+      where: { id },
+    });
+
+    if (!workerToDelete) {
+      throw new Error(`Worker with ID ${id} not found.`);
+    }
+
+    await mainPrisma.discordWorkers.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting worker:", error);
+    throw error;
+  }
+}
+
+export async function editDiscordTransaction(
+  id: string,
+  updatedData: IFormDiscordEarning
+): Promise<IDiscordEarning> {
+  try {
+    const transactionToEdit = await mainPrisma.transactions.findUnique({
+      where: { id },
+    });
+
+    if (!transactionToEdit) {
+      throw new Error(`Transaction with ID ${id} not found.`);
+    }
+
+    const updatedTransaction = await mainPrisma.transactions.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedTransaction;
+  } catch (error) {
+    console.error("Error editing transaction:", error);
+    throw error;
+  }
+}
+
+export async function deleteDiscordTransaction(id: string): Promise<void> {
+  try {
+    const transactionToDelete = await mainPrisma.transactions.findUnique({
+      where: { id },
+    });
+
+    if (!transactionToDelete) {
+      throw new Error(`Transaction with ID ${id} not found.`);
+    }
+
+    await mainPrisma.transactions.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
+    throw error;
+  }
+}
+
+export async function addDiscordTransaction(
+  data: IFormDiscordEarning
+): Promise<IDiscordEarning> {
+  try {
+    const newTransaction = await mainPrisma.transactions.create({
+      data: { ...data },
+    });
+
+    await mainPrisma.discordWorkers.update({
+      where: { id: data.workerId },
+      data: {
+        earnings: {
+          push: newTransaction.id,
+        },
+      },
+    });
+
+    return newTransaction;
+  } catch (error) {
+    console.error("Error adding new transaction:", error);
+    throw error;
+  }
 }

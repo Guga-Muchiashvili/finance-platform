@@ -475,13 +475,30 @@ export async function addTransaction(
       data: { ...data },
     });
 
+    await mainPrisma.worker.update({
+      where: { id: data.workerId },
+      data: {
+        earnings: {
+          push: newTransaction.id,
+        },
+      },
+    });
+
+    await mainPrisma.model.update({
+      where: { id: data.modelId },
+      data: {
+        earnings: {
+          push: newTransaction.id,
+        },
+      },
+    });
+
     return newTransaction;
   } catch (error) {
     console.error("Error adding new transaction:", error);
     throw error;
   }
 }
-
 export const createLead = async ({
   name,
   img,
@@ -544,6 +561,7 @@ export async function editLead(
     throw error;
   }
 }
+
 export async function editTransaction(
   id: string,
   updatedData: IFormEarning
