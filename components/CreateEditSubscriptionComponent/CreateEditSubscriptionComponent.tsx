@@ -37,14 +37,12 @@ const CreateEditSubscriptionComponent = ({
       type,
     };
 
-    console.log(currentPath, id);
     if (currentPath.includes("Create") || currentPath.includes("create")) {
       createSubscription(updatedData);
     } else if (
       (currentPath.includes("Edit") || currentPath.includes("edit")) &&
       id
     ) {
-      console.log("here");
       EditSubscription({ id, updatedData });
     }
   };

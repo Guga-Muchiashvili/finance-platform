@@ -217,49 +217,42 @@ export const getModelDashboardData = async () => {
     ).toFixed(1);
 
     function calculateStreak(transactions: IEarning[]) {
-      const today = new Date().toLocaleDateString();
+      if (!transactions.length) return 0;
 
-      const transactionDates = transactions.map((transaction) =>
-        new Date(transaction.createdAt).toLocaleDateString()
-      );
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      if (!transactionDates.includes(today)) {
+      const uniqueDates = Array.from(
+        new Set(
+          transactions.map((transaction) => {
+            const [day, month, year] = transaction.createdAt
+              .split("/")
+              .map(Number);
+            return new Date(year, month - 1, day).setHours(0, 0, 0, 0);
+          })
+        )
+      ).sort((a, b) => b - a);
+
+      if (uniqueDates[0] !== today.getTime()) {
         return 0;
       }
 
-      transactions.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      let streak = 1;
 
-      let streak = 0;
-      let lastTransactionDate = null;
+      for (let i = 0; i < uniqueDates.length - 1; i++) {
+        const currentDate = new Date(uniqueDates[i]);
+        const previousDate = new Date(uniqueDates[i + 1]);
 
-      for (const transaction of transactions) {
-        const currentTransactionDate = new Date(
-          transaction.createdAt
-        ).toLocaleDateString();
+        previousDate.setDate(previousDate.getDate() + 1);
 
-        if (lastTransactionDate === null) {
-          streak = 1;
-        } else if (isConsecutive(lastTransactionDate, currentTransactionDate)) {
+        if (currentDate.getTime() === previousDate.getTime()) {
           streak++;
         } else {
           break;
         }
-
-        lastTransactionDate = currentTransactionDate;
       }
 
       return streak;
-    }
-
-    function isConsecutive(lastDate: string, currentDate: string) {
-      const last = new Date(lastDate);
-      const current = new Date(currentDate);
-
-      current.setDate(current.getDate() - 1);
-      return last.toLocaleDateString() === current.toLocaleDateString();
     }
 
     const streak = calculateStreak(earnings);
