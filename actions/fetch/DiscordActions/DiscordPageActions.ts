@@ -131,9 +131,51 @@ export async function getDiscordDashboardData() {
   const DiscordSubstiptions = Subscriptions.filter(
     (item) => item.type == "Discord"
   );
+
+  function calculateStreak(transactions: IDiscordEarning[]) {
+    if (!transactions.length) return 0;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const uniqueDates = Array.from(
+      new Set(
+        transactions.map((transaction) => {
+          const [day, month, year] = transaction.createdAt
+            .split("/")
+            .map(Number);
+          return new Date(year, month - 1, day).setHours(0, 0, 0, 0);
+        })
+      )
+    ).sort((a, b) => b - a);
+
+    if (uniqueDates[0] !== today.getTime()) {
+      return 0;
+    }
+
+    let streak = 1;
+
+    for (let i = 0; i < uniqueDates.length - 1; i++) {
+      const currentDate = new Date(uniqueDates[i]);
+      const previousDate = new Date(uniqueDates[i + 1]);
+
+      previousDate.setDate(previousDate.getDate() + 1);
+
+      if (currentDate.getTime() === previousDate.getTime()) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  const streak = calculateStreak(transactions);
   return {
     totalIn,
     totalOut,
+    streak,
     ourShareTotal,
     ourShareOut,
     totalFee: totalFee.toFixed(1),

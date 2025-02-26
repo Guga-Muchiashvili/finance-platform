@@ -122,7 +122,7 @@ const DiscordComponent = () => {
         </div>
         <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
           <h1 className="text-2xl">Streak</h1>
-          <h1 className="text-6xl mt-4">2 day</h1>
+          <h1 className="text-6xl mt-4">{DiscordData?.streak} day</h1>
         </div>
       </div>
       <div className="w-full flex flex-col gap-4">
