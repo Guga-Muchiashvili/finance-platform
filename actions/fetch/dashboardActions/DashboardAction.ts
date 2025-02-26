@@ -253,6 +253,42 @@ export async function fetchDashboardData() {
       ...Object.keys(monthlyAmountsMain),
     ]);
 
+    function isDateInPeriod(dateStr: string, periodStr: string) {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      const dateToCheck = new Date(year, month - 1, day);
+
+      const [start, end] = periodStr.split(" - ");
+      const [startMonthStr, startDay] = start.split(" ");
+      const [endDay, endYear] = end.split(", ");
+
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const startMonth = monthNames.indexOf(startMonthStr);
+      const endYearParsed = Number(endYear);
+
+      const startDate = new Date(endYearParsed, startMonth, Number(startDay));
+
+      let endMonth = startMonth;
+      if (Number(endDay) < Number(startDay)) {
+        endMonth += 1;
+      }
+      const endDate = new Date(endYearParsed, endMonth, Number(endDay));
+
+      return dateToCheck >= startDate && dateToCheck <= endDate;
+    }
+
     const formattedChartData = [
       {
         label: "models",
@@ -272,37 +308,34 @@ export async function fetchDashboardData() {
       {
         label: "models",
         data: Array.from(allPeriods).map((period) => {
-          const percentage = Number(
-            transactions.find(
-              (t) =>
-                parseDate(t.createdAt).getTime() === parseDate(period).getTime()
-            )?.percentage ?? 40
-          );
+          let totalOurShare = 0;
 
-          return Number(
-            (
-              (Number(monthlyAmountsOther[period]) || 0) *
-              (percentage / 100)
-            ).toFixed(1)
-          );
+          transactions.forEach((transaction) => {
+            if (isDateInPeriod(transaction.createdAt, period)) {
+              const percentage = Number(transaction.percentage) || 0;
+              const ourSharePercentage = 100 - percentage;
+              totalOurShare +=
+                Number(transaction.total) * (ourSharePercentage / 100);
+            }
+          });
+
+          return Number(totalOurShare.toFixed(1));
         }),
       },
       {
         label: "Discord",
         data: Array.from(allPeriods).map((period) => {
-          const percentage = Number(
-            DiscordTransactions.find(
-              (t) =>
-                parseDate(t.createdAt).getTime() === parseDate(period).getTime()
-            )?.percentage ?? 50
-          );
+          let totalOurShare = 0;
+          DiscordTransactions.forEach((transaction) => {
+            if (isDateInPeriod(transaction.createdAt, period)) {
+              const percentage = Number(transaction.percentage) || 0;
+              const ourSharePercentage = 100 - percentage;
+              totalOurShare =
+                Number(transaction.total) * (ourSharePercentage / 100);
+            }
+          });
 
-          return Number(
-            (
-              (Number(monthlyAmountsMain[period]) || 0) *
-              (percentage / 100)
-            ).toFixed(1)
-          );
+          return Number(totalOurShare.toFixed(1));
         }),
       },
     ];
@@ -311,28 +344,29 @@ export async function fetchDashboardData() {
       {
         label: "Total Our Share",
         data: Array.from(allPeriods).map((period) => {
-          const modelPercentage = Number(
-            transactions.find(
-              (item) =>
-                parseDate(item.createdAt).toLocaleDateString() === period
-            )?.percentage ?? 40
-          );
-          const discordPercentage = Number(
-            DiscordTransactions.find(
-              (item) =>
-                parseDate(item.createdAt).toLocaleDateString() === period
-            )?.percentage ?? 50
-          );
+          let totalShare = 0;
 
-          const modelShare =
-            (Number(monthlyAmountsOther[period]?.toFixed(1)) || 0) *
-            (modelPercentage / 100);
+          transactions.forEach((transaction) => {
+            if (isDateInPeriod(transaction.createdAt, period)) {
+              const percentage = Number(transaction.percentage) || 0;
+              const ourSharePercentage = 100 - percentage;
+              const share =
+                Number(transaction.total) * (ourSharePercentage / 100);
+              totalShare += share;
+            }
+          });
 
-          const discordShare =
-            (Number(monthlyAmountsMain[period]?.toFixed(1)) || 0) *
-            (discordPercentage / 100);
+          DiscordTransactions.forEach((transaction) => {
+            if (isDateInPeriod(transaction.createdAt, period)) {
+              const percentage = Number(transaction.percentage) || 0;
+              const ourSharePercentage = 100 - percentage;
+              const share =
+                Number(transaction.total) * (ourSharePercentage / 100);
+              totalShare += share;
+            }
+          });
 
-          return Number((modelShare + discordShare).toFixed(1));
+          return Number(totalShare.toFixed(1));
         }),
       },
     ];
