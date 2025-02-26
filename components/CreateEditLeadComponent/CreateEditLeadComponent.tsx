@@ -8,12 +8,12 @@ import TextFieldElementComponent from "@/common/elements/TextFieldElement/TextFi
 import { usePathname, useRouter } from "next/navigation";
 import MultiSelectFieldElement from "@/common/elements/MulitSelectElement/MultiSelectElement";
 import { FaArrowLeft } from "react-icons/fa";
-import { useGetModels } from "@/queries/DashboardQueries/useGetModelData/useGetModelData";
+import { useGetModels } from "@/queries/ModelQueries/useGetModelData/useGetModelData";
 import DropdownFieldElement from "@/common/elements/DropdownElement/DropdownElement";
 import useEditLeadMutation from "@/mutations/ModelMutations/EditLead";
 import useAddLeadMutation from "@/mutations/ModelMutations/CreateLead";
 import { IFormLead } from "@/common/types";
-import { useGetWorkers } from "@/queries/DashboardQueries/useGetWorkers/useGetWorkers";
+import { useGetWorkers } from "@/queries/ModelQueries/useGetWorkers/useGetWorkers";
 import ToggleElementComponent from "@/common/elements/ToggleElement/ToggleElement";
 
 const CreateEditLeadComponent = ({

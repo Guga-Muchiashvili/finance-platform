@@ -32,6 +32,13 @@ export const DiscordworkerSchema = yup.object().shape({
   name: yup.string().required("name is required"),
 });
 
+export const SubscriptionSchema = yup.object().shape({
+  amount: yup.string().required("amount is required"),
+  reason: yup.string().required("reason is required"),
+  status: yup.string().required("status is required"),
+  date: yup.string().required("date is required"),
+});
+
 export const EarningSchema = yup.object().shape({
   amount: yup.number().required("amount is required"),
   createdAt: yup.string().required("createdAt is required"),

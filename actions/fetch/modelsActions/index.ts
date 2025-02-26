@@ -12,11 +12,12 @@ import { mainPrisma } from "../../../common/lib/db";
 
 export const getModelDashboardData = async () => {
   try {
-    const [earnings, workers, models, leads] = await Promise.all([
+    const [earnings, workers, models, leads, subscription] = await Promise.all([
       mainPrisma.earning.findMany(),
       mainPrisma.worker.findMany(),
       mainPrisma.model.findMany(),
       mainPrisma.lead.findMany(),
+      mainPrisma.subscription.findMany(),
     ]);
 
     const moneyIn = earnings
@@ -275,13 +276,16 @@ export const getModelDashboardData = async () => {
       });
     });
 
-    // Generate chart data for leads by model
     const leadChartData = models.map((model) => {
       return modelLeadCounts[model.id] || 0;
     });
 
     const Leadlabels = models.map((model) => model.name);
     const LeadchartData = leadChartData;
+
+    const ModelSubscriptions = subscription.filter(
+      (item) => item.type == "Model"
+    );
 
     return {
       moneyIn,
@@ -298,6 +302,7 @@ export const getModelDashboardData = async () => {
       Leadlabels,
       leads,
       LeadchartData,
+      subscription: ModelSubscriptions,
       ModelsPieData: modelTransaction,
       WorkersPieData: workerTransaction,
       moneyByMonth: Object.entries(monthlyTransactions).map(

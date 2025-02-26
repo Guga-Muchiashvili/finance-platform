@@ -146,3 +146,19 @@ export interface IFormLead {
   seen: boolean;
   description: string;
 }
+
+export interface ISubscription {
+  id: string;
+  amount: string;
+  reason: string;
+  type: string;
+  date: string;
+  status: string;
+}
+
+export interface IFormSubscription {
+  amount: string;
+  reason: string;
+  status: string;
+  date: string;
+}

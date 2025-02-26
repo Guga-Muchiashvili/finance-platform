@@ -1,5 +1,10 @@
 "use server";
-import { IDiscordEarning, Itransaction } from "@/common/types";
+import {
+  IDiscordEarning,
+  IFormSubscription,
+  ISubscription,
+  Itransaction,
+} from "@/common/types";
 import { mainPrisma } from "../../../common/lib/db";
 
 const parseDate = (dateString: string): Date => {
@@ -401,6 +406,64 @@ export async function fetchDashboardData() {
     };
   } catch (error) {
     console.error("Error fetching data:", error);
+    throw error;
+  }
+}
+
+export async function addSubscription(
+  data: IFormSubscription & { type: string }
+): Promise<ISubscription> {
+  try {
+    const newSubscription = await mainPrisma.subscription.create({
+      data: { ...data },
+    });
+    return newSubscription;
+  } catch (error) {
+    console.error("Error adding new transaction:", error);
+    throw error;
+  }
+}
+
+export async function editSubscription(
+  id: string,
+  updatedData: IFormSubscription & { type: string }
+): Promise<ISubscription> {
+  try {
+    const SubscriptionToEdit = await mainPrisma.subscription.findUnique({
+      where: { id },
+    });
+
+    if (!SubscriptionToEdit) {
+      throw new Error(`Subscription with ID ${id} not found.`);
+    }
+
+    const updatedSubscription = await mainPrisma.subscription.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedSubscription;
+  } catch (error) {
+    console.error("Error editing Subscription:", error);
+    throw error;
+  }
+}
+
+export async function deleteSubscription(id: string): Promise<void> {
+  try {
+    const SubscriptionToDelete = await mainPrisma.subscription.findUnique({
+      where: { id },
+    });
+
+    if (!SubscriptionToDelete) {
+      throw new Error(`Subscription with ID ${id} not found.`);
+    }
+
+    await mainPrisma.subscription.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting Subscription:", error);
     throw error;
   }
 }

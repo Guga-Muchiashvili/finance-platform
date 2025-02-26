@@ -167,7 +167,14 @@ export default function LandingPageComponent() {
             </div>
             <div className="w-full h-72 overflow-y-scroll hide-scrollbar pb-4">
               {data?.subscriptions.map((item) => (
-                <LoseBoxElement key={item.id} />
+                <LoseBoxElement
+                  key={item.id}
+                  amount={item.amount}
+                  date={item.date}
+                  status={item.status}
+                  title={item.reason}
+                  type={item.type}
+                />
               ))}
             </div>
           </div>

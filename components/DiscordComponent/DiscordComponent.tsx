@@ -1,16 +1,48 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useGetDiscordDashboardData } from "@/queries/DiscordQueries/useGetDiscordDasboardData/useGetDiscordDashboardData";
+import useDeleteTransactionMutation from "@/mutations/ModelMutations/DeleteTransaction";
+import useDeleteSubscriptionMutation from "@/mutations/CommonMutations/DeleteSubscription";
+import ConfirmationModal from "../ModelsDashboardComponent/elements/ConfirmationModal";
 
 const DiscordComponent = () => {
   const { data: DiscordData } = useGetDiscordDashboardData();
+  const { mutate: deleteTransaction } = useDeleteTransactionMutation();
+  const { mutate: deleteSubscription } = useDeleteSubscriptionMutation();
+
+  const [isTransactionModalOpen, setisTransactionModalOpen] = useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const [selectedSubscription, setselectedSubscription] = useState("");
+  const [selectedTransactionId, setSelectedTransactionId] = useState("");
 
   const route = useRouter();
+
+  const handleDeleteLeadSubscription = (leadId: string) => {
+    setselectedSubscription(leadId);
+    setIsSubscriptionModalOpen(true);
+  };
+  const handleDeleteTransactionClick = (transactionId: string) => {
+    setSelectedTransactionId(transactionId);
+    setisTransactionModalOpen(true);
+  };
+  const handleConfirmSubscriptionDelete = () => {
+    if (selectedSubscription) deleteSubscription(selectedSubscription);
+    setIsSubscriptionModalOpen(false);
+  };
+  const handleConfirmTransactionDelete = () => {
+    if (selectedTransactionId) deleteTransaction(selectedTransactionId);
+    setisTransactionModalOpen(false);
+  };
+
+  const handleCancelDelete = () => {
+    setisTransactionModalOpen(false);
+    setIsSubscriptionModalOpen(false);
+  };
 
   return (
     <div className="w-full flex flex-col gap-4 min-h-screen text-blue-600 p-4 bg-gray-100">
@@ -165,7 +197,10 @@ const DiscordComponent = () => {
                       route.push(`Discord/transactions/edit/${item.id}`)
                     }
                   />
-                  <FaTrash className="text-red-500 absolute right-3 cursor-pointer" />
+                  <FaTrash
+                    className="text-red-500 absolute right-3 cursor-pointer"
+                    onClick={() => handleDeleteTransactionClick(item.id)}
+                  />
                 </div>
               ))}
             </div>
@@ -173,14 +208,55 @@ const DiscordComponent = () => {
           <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
             <div className="flex justify-between">
               <h1 className="text-2xl">Expenses</h1>
-              <button className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl">
+              <button
+                className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl"
+                onClick={() => route.push("Discord/subscriptions/Create")}
+              >
                 Add Expense
               </button>
             </div>
-            <div className="h-[40vh] overflow-y-auto hide-scrollbar"></div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DiscordData?.DiscordSubstiptions?.map((item) => (
+                <div
+                  className="w-full h-20 justify-between px-12 pr-20  relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  <h1 className="text-2xl">{item.reason || "Anonymous"}</h1>
+                  <h1 className="text-2xl">{item.amount}$</h1>
+                  <h1 className="text-2xl">{item.date}$</h1>
+                  <button className="text-white px-4 bg-blue-600 py-2 text-xl rounded-xl">
+                    {item.status}
+                  </button>
+                  <FaEdit
+                    className="text-green-600 absolute right-9 cursor-pointer"
+                    onClick={() =>
+                      route.push(`Discord/subscriptions/Edit/${item.id}`)
+                    }
+                  />
+                  <FaTrash
+                    className="text-red-500 absolute right-3 cursor-pointer"
+                    onClick={() => handleDeleteLeadSubscription(item.id)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
+      {isTransactionModalOpen && (
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmTransactionDelete}
+          title="Are you sure you want to delete this transaction?"
+        />
+      )}
+      {isSubscriptionModalOpen && (
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmSubscriptionDelete}
+          title="Are you sure you want to delete this Subscription?"
+        />
+      )}
     </div>
   );
 };

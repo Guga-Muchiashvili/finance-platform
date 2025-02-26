@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import LineChartComponent from "@/common/components/LineChartComponent/LineChartComponent";
-import { useGetModelDashboardData } from "@/queries/DashboardQueries/useGetModelDashboardData/useGetModelDashboardData";
+import { useGetModelDashboardData } from "@/queries/ModelQueries/useGetModelDashboardData/useGetModelDashboardData";
 import BarChartComponent from "@/common/components/BarChartComponent/BarChartComponent";
 import PieChartComponent from "@/common/components/PieChartComponent/PieChartComponent";
 import { useRouter } from "next/navigation";
@@ -10,9 +10,10 @@ import useDeleteModelMutation from "@/mutations/ModelMutations/DeleteModel";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import useDeleteWorker from "@/mutations/ModelMutations/DeleteWorker";
 import useDeleteTransactionMutation from "@/mutations/ModelMutations/DeleteTransaction";
-import { useGetWorkersSallary } from "@/queries/DashboardQueries/useGetPaymentAmount/useGetPaymentAmount";
+import { useGetWorkersSallary } from "@/queries/ModelQueries/useGetPaymentAmount/useGetPaymentAmount";
 import useDeleteLeadlMutation from "@/mutations/ModelMutations/DeleteLead";
 import ConfirmationModal from "./elements/ConfirmationModal";
+import useDeleteSubscriptionMutation from "@/mutations/CommonMutations/DeleteSubscription";
 
 const ModelsDashboard = () => {
   const { data: DashboardData } = useGetModelDashboardData();
@@ -22,15 +23,18 @@ const ModelsDashboard = () => {
   const { mutate: deleteModel } = useDeleteModelMutation();
   const { mutate: deleteWorker } = useDeleteWorker();
   const { mutate: deleteTransaction } = useDeleteTransactionMutation();
+  const { mutate: deleteSubscription } = useDeleteSubscriptionMutation();
   const { mutate: deleteLead } = useDeleteLeadlMutation();
 
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [isLeadModelOpen, setIsLeadModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
   const [selectedWorkerId, setSelectedWorkerId] = useState("");
   const [selectedLeadId, setSelectedLeadId] = useState("");
+  const [selectedSubscription, setselectedSubscription] = useState("");
   const [selectedTransactionId, setSelectedTransactionId] = useState("");
 
   const ModelLabels =
@@ -60,6 +64,10 @@ const ModelsDashboard = () => {
     setSelectedLeadId(leadId);
     setIsLeadModalOpen(true);
   };
+  const handleDeleteLeadSubscription = (leadId: string) => {
+    setselectedSubscription(leadId);
+    setIsSubscriptionModalOpen(true);
+  };
 
   const handleDeleteTransactionClick = (transactionId: string) => {
     setSelectedTransactionId(transactionId);
@@ -74,6 +82,10 @@ const ModelsDashboard = () => {
   const handleConfirmLeadDelete = () => {
     if (selectedLeadId) deleteLead(selectedLeadId);
     setIsLeadModalOpen(false);
+  };
+  const handleConfirmSubscriptionDelete = () => {
+    if (selectedSubscription) deleteSubscription(selectedSubscription);
+    setIsSubscriptionModalOpen(false);
   };
 
   const handleConfirmWorkerDelete = () => {
@@ -365,11 +377,36 @@ const ModelsDashboard = () => {
           <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
             <div className="flex justify-between">
               <h1 className="text-2xl">Expenses</h1>
-              <button className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl">
+              <button
+                className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl"
+                onClick={() => route.push(`Models/Subscription/create`)}
+              >
                 Add Expense
               </button>
             </div>
-            <div className="h-[40vh] overflow-y-auto hide-scrollbar"></div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DashboardData?.subscription.reverse().map((item) => (
+                <div
+                  className="w-full h-20 justify-between px-12 pr-20  relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  <h1 className="text-2xl">{item.reason}</h1>
+                  <h1 className="text-2xl">{item.amount}$</h1>
+                  <h1 className="text-2xl">{item.status}</h1>
+                  <h1 className="text-2xl">{item.date}$</h1>
+                  <FaEdit
+                    className="text-green-600 absolute right-9 cursor-pointer"
+                    onClick={() =>
+                      route.push(`Models/Subscription/edit/${item.id}`)
+                    }
+                  />
+                  <FaTrash
+                    className="text-red-500 absolute right-3 cursor-pointer"
+                    onClick={() => handleDeleteLeadSubscription(item.id)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -421,6 +458,13 @@ const ModelsDashboard = () => {
           close={handleCancelDelete}
           deleteFunction={handleConfirmWorkerDelete}
           title="Are you sure you want to delete this worker?"
+        />
+      )}
+      {isSubscriptionModalOpen && (
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmSubscriptionDelete}
+          title="Are you sure you want to delete this Subscription?"
         />
       )}
     </div>

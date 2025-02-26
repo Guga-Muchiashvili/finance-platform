@@ -9,7 +9,7 @@ import { mainPrisma } from "../../../common/lib/db";
 
 export async function getDiscordDashboardData() {
   const transactions = await mainPrisma.transactions.findMany();
-  console.log(transactions);
+  const Subscriptions = await mainPrisma.subscription.findMany();
   const DiscordWorkers = await mainPrisma.discordWorkers.findMany();
 
   let totalIn = 0;
@@ -127,6 +127,10 @@ export async function getDiscordDashboardData() {
 
     currentWeek.setDate(currentWeek.getDate() + 14);
   }
+
+  const DiscordSubstiptions = Subscriptions.filter(
+    (item) => item.type == "Discord"
+  );
   return {
     totalIn,
     totalOut,
@@ -139,6 +143,7 @@ export async function getDiscordDashboardData() {
     months: allMonths,
     MonthChartData,
     workers: DiscordWorkers,
+    DiscordSubstiptions,
     dataLineChart: {
       labels: allWeeks,
       data: chartData,

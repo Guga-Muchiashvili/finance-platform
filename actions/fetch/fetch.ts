@@ -114,6 +114,35 @@ export async function fetchLeadById(id: string) {
   }
 }
 
+export async function fetchSubscriptions() {
+  try {
+    const Leads = await mainPrisma.lead.findMany();
+    return Leads;
+  } catch (error) {
+    console.error("Error fetching Leads:", error);
+    throw error;
+  }
+}
+
+export async function fetchSubscriptionById(id: string) {
+  try {
+    const Subscription = await mainPrisma.subscription.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!Subscription) {
+      throw new Error(`Subscription with id ${id} not found.`);
+    }
+
+    return Subscription;
+  } catch (error) {
+    console.error("Error fetching Subscription:", error);
+    throw error;
+  }
+}
+
 // DISCORD FETCH REQUESTS
 
 export async function fetchDiscordTransactions() {
