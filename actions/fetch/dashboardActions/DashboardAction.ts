@@ -330,7 +330,7 @@ export async function fetchDashboardData() {
             if (isDateInPeriod(transaction.createdAt, period)) {
               const percentage = Number(transaction.percentage) || 0;
               const ourSharePercentage = 100 - percentage;
-              totalOurShare =
+              totalOurShare +=
                 Number(transaction.total) * (ourSharePercentage / 100);
             }
           });
