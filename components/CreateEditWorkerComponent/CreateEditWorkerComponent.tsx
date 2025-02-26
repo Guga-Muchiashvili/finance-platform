@@ -14,6 +14,7 @@ import { useGetModels } from "@/queries/ModelQueries/useGetModelData/useGetModel
 import useAddWorkerMutation from "@/mutations/ModelMutations/CreateWorker";
 import DropdownFieldElement from "@/common/elements/DropdownElement/DropdownElement";
 import useEditWorker from "@/mutations/ModelMutations/EditWorker";
+import ToggleElementComponent from "@/common/elements/ToggleElement/ToggleElement";
 
 const CreateEditWorkerComponent = ({
   defaultValues,
@@ -81,6 +82,11 @@ const CreateEditWorkerComponent = ({
               name="earnings"
               options={TransactionOptions}
             />
+            <div className="flex items-center w-full justify-start">
+              <div className="w-fit">
+                <ToggleElementComponent label="isActive" name="active" />
+              </div>
+            </div>
           </div>
         </div>
         <div className="w-full items-center justify-end flex py-4">

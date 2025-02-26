@@ -30,6 +30,7 @@ export async function fetchDashboardData() {
       type: string;
       name: string;
       earnings: string;
+      active: boolean;
     }[];
 
     discordWorkers.forEach((worker) => {
@@ -46,6 +47,7 @@ export async function fetchDashboardData() {
         type: "discord Worker",
         name: worker.name,
         earnings: totalEarnings.toFixed(1),
+        active: worker.active,
       });
     });
 
@@ -64,6 +66,7 @@ export async function fetchDashboardData() {
         type: "Model Worker",
         name: worker.name,
         earnings: totalEarnings.toFixed(1),
+        active: worker.active,
       });
     });
 

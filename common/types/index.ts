@@ -64,11 +64,13 @@ export interface IWorker {
   modelId: string;
   name: string;
   profit: string;
+  active: boolean;
 }
 export interface IDiscordWorker {
   id?: string;
   earnings: string[];
   name: string;
+  active: boolean;
 }
 
 export interface IFormWorker {
@@ -76,11 +78,13 @@ export interface IFormWorker {
   modelId: string;
   name: string;
   profit: string;
+  active: boolean;
 }
 
 export interface IFormDiscordWorker {
   earnings?: string[];
   name: string;
+  active: boolean;
 }
 
 export interface IFormEarning {

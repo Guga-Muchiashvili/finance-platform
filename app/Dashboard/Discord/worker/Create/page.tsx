@@ -14,6 +14,7 @@ const page = () => {
   const defaultValues: IFormDiscordWorker = {
     earnings: [],
     name: "",
+    active: false,
   };
   return <CreateEditDiscordWorker defaultValues={defaultValues} />;
 };

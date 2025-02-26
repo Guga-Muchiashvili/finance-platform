@@ -16,6 +16,7 @@ export default async function Page({
   const defaultValues: IFormDiscordWorker = {
     earnings: workerData.earnings,
     name: workerData.name,
+    active: workerData.active,
   };
   return <CreateEditDiscordWorker defaultValues={defaultValues} id={id} />;
 }

@@ -26,10 +26,12 @@ export const workerSchema = yup.object().shape({
   modelId: yup.string().required("Model is required"),
   name: yup.string().required("name is required"),
   profit: yup.string().required("profit is required"),
+  active: yup.boolean().required("Active status is required"),
 });
 export const DiscordworkerSchema = yup.object().shape({
   earnings: yup.array().of(yup.string().required()),
   name: yup.string().required("name is required"),
+  active: yup.boolean().required("Active status is required"),
 });
 
 export const SubscriptionSchema = yup.object().shape({

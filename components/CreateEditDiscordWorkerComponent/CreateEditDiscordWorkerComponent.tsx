@@ -12,6 +12,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { useGetDiscordTransactions } from "@/queries/DiscordQueries/useGetDiscordTransaction/useGetDiscordTransaction";
 import useEditDiscordWorkerMutation from "@/mutations/DiscordMutations/EditDiscordWorker";
 import useAddDiscordWorkerMutation from "@/mutations/DiscordMutations/CreateDiscordWorker";
+import ToggleElementComponent from "@/common/elements/ToggleElement/ToggleElement";
 
 const CreateEditDiscordWorker = ({
   defaultValues,
@@ -68,6 +69,11 @@ const CreateEditDiscordWorker = ({
               name="earnings"
               options={TransactionOptions}
             />
+            <div className="flex items-center w-full justify-start">
+              <div className="w-fit">
+                <ToggleElementComponent label="isActive" name="active" />
+              </div>
+            </div>
           </div>
         </div>
         <div className="w-full items-center justify-end flex py-4">

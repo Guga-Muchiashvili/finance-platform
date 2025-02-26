@@ -14,6 +14,7 @@ const page = () => {
     modelId: "",
     name: "",
     profit: "0",
+    active: false,
   };
   return <CreateEditWorkerComponent defaultValues={defaultValues} />;
 };

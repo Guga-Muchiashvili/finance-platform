@@ -69,12 +69,15 @@ model Worker {
   modelId  String
   name     String
   profit   String
+  active      Boolean
+
 }
 
 model DiscordWorkers {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
   earnings String[]
   name     String
+  active      Boolean
 }
 
 

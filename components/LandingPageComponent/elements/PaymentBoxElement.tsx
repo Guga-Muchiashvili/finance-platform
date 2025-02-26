@@ -24,7 +24,7 @@ const PaymentBoxElement = ({
           className={`text-white px-4 bg-green-600 py-1 rounded-xl text-center ${
             status === "completed"
               ? "bg-green-600"
-              : status === "hold"
+              : status === "Hold"
               ? "bg-red-600"
               : status === "balance"
               ? "bg-yellow-600"

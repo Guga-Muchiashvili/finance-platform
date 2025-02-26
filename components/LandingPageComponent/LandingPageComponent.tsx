@@ -143,10 +143,12 @@ export default function LandingPageComponent() {
               <h1 className="w-1/4 text-center">Type</h1>
               <h1 className="w-1/4 text-center">Name</h1>
               <h1 className="w-1/4 text-center">Amount</h1>
+              <h1 className="w-1/4 text-center">Active</h1>
             </div>
             <div className="h-72 w-full overflow-y-auto hide-scrollbar">
               {data?.combinedWorkers?.map((item) => (
                 <WorkerBoxElement
+                  active={item.active}
                   amount={item.earnings}
                   name={item.name}
                   type={item.type}
