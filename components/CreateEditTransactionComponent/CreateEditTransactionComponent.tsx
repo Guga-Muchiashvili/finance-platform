@@ -82,7 +82,7 @@ const CreateEditTransaction = ({
               name="status"
               options={[
                 { label: "completed", value: "Completed" },
-                { label: "hold", value: "Hold" },
+                { label: "hold", value: "hold" },
                 { label: "balance", value: "balance" },
               ]}
             />
