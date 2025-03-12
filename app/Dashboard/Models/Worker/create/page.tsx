@@ -15,6 +15,10 @@ const page = () => {
     name: "",
     profit: "0",
     active: false,
+    phoneNumber: "",
+    transactionAdress: "",
+    email: "",
+    idNumber: "",
   };
   return <CreateEditWorkerComponent defaultValues={defaultValues} />;
 };

@@ -69,7 +69,11 @@ model Worker {
   modelId  String
   name     String
   profit   String
-  active      Boolean
+  active   Boolean
+  idNumber String
+  phoneNumber String
+  email       String
+  transactionAdress String
 
 }
 

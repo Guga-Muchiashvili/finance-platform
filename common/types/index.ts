@@ -65,6 +65,10 @@ export interface IWorker {
   name: string;
   profit: string;
   active: boolean;
+  idNumber: string;
+  phoneNumber: string;
+  email: string;
+  transactionAdress: string;
 }
 export interface IDiscordWorker {
   id?: string;
@@ -79,6 +83,10 @@ export interface IFormWorker {
   name: string;
   profit: string;
   active: boolean;
+  idNumber?: string;
+  phoneNumber: string;
+  email?: string;
+  transactionAdress: string;
 }
 
 export interface IFormDiscordWorker {

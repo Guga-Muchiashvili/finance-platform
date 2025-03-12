@@ -19,6 +19,10 @@ export default async function Page({
     name: workerData.name,
     profit: workerData.profit,
     active: workerData.active,
+    phoneNumber: workerData.phoneNumber,
+    transactionAdress: workerData.transactionAdress,
+    email: workerData.email,
+    idNumber: workerData.idNumber,
   };
 
   return <CreateEditWorkerComponent defaultValues={defaultValues} id={id} />;

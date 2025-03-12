@@ -412,7 +412,7 @@ export async function editWorker(
 export async function addWorker(data: IFormWorker): Promise<IWorker> {
   try {
     const newWorker = await mainPrisma.worker.create({
-      data: { ...data },
+      data: { ...data, email: data.email || "", idNumber: data.idNumber || "" },
     });
 
     await mainPrisma.model.update({

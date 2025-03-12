@@ -262,10 +262,12 @@ const ModelsDashboard = () => {
             <div className="h-[40vh] overflow-y-auto hide-scrollbar">
               {DashboardData?.workers.map((item) => (
                 <div
-                  className="w-full h-20 mt-4 flex relative items-center border-[1px] shadow-lg rounded-xl p-3"
+                  className="w-full h-20 mt-4 flex gap-12 text-xl relative items-center border-[1px] shadow-lg rounded-xl p-3"
                   key={item.id}
                 >
-                  {item.name}
+                  <h1>{item.name}</h1>
+                  <h1> {item.phoneNumber}</h1>
+                  <h1>{item.transactionAdress}</h1>
                   <FaEdit
                     className="text-green-600 absolute right-9 cursor-pointer"
                     onClick={() => route.push(`Models/Worker/edit/${item.id}`)}

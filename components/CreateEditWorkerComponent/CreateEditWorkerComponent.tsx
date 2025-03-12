@@ -88,6 +88,18 @@ const CreateEditWorkerComponent = ({
               </div>
             </div>
           </div>
+          <div className="w-full h-fit gap-9 bg-white grid grid-cols-2 p-3 rounded-xl">
+            <TextFieldElementComponent label="id Number" name="idNumber" />
+            <TextFieldElementComponent
+              label="phone Number"
+              name="phoneNumber"
+            />
+            <TextFieldElementComponent label="email" name="email" />
+            <TextFieldElementComponent
+              label="transaction Adress"
+              name="transactionAdress"
+            />
+          </div>
         </div>
         <div className="w-full items-center justify-end flex py-4">
           <button className="bg-blue-600 px-3 py-2 text-xl rounded-xl text-white">
