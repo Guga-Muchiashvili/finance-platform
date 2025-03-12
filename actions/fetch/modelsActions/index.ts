@@ -4,7 +4,9 @@ import {
   IFormEarning,
   IFormLead,
   IFormModel,
+  IFormTodo,
   IFormWorker,
+  ITodo,
   Itransaction,
   IWorker,
 } from "@/common/types";
@@ -709,6 +711,67 @@ export async function calculatePaymentsForAllWorkers(): Promise<
     return workerPayments;
   } catch (error) {
     console.error("Error calculating worker payments:", error);
+    throw error;
+  }
+}
+
+export async function editTodo(
+  id: string,
+  updatedData: IFormTodo
+): Promise<IFormTodo> {
+  try {
+    const TodoToEdit = await mainPrisma.todo.findUnique({
+      where: { id },
+    });
+
+    if (!TodoToEdit) {
+      throw new Error(`Todo with ID ${id} not found.`);
+    }
+
+    const updatedTodo = await mainPrisma.todo.update({
+      where: { id },
+      data: { ...updatedData },
+    });
+
+    return updatedTodo;
+  } catch (error) {
+    console.error("Error editing Todo:", error);
+    throw error;
+  }
+}
+
+export async function addTodo(data: IFormTodo): Promise<ITodo> {
+  try {
+    const newTodo = await mainPrisma.todo.create({
+      data: {
+        ...data,
+        description: data.description ?? "",
+        deadline: data.deadline ?? "",
+        label: data.label ?? "",
+      },
+    });
+
+    return newTodo;
+  } catch (error) {
+    console.error("Error adding new Todo:", error);
+    throw error;
+  }
+}
+
+export async function deleteTodo(id: string): Promise<void> {
+  try {
+    const TodoToDelete = await mainPrisma.todo.findUnique({
+      where: { id },
+    });
+
+    if (!TodoToDelete) {
+      throw new Error(`Todo with ID ${id} not found.`);
+    }
+    await mainPrisma.todo.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Error deleting Todo:", error);
     throw error;
   }
 }

@@ -166,3 +166,24 @@ export interface IFormSubscription {
   status: string;
   date: string;
 }
+
+export interface IFormTodo {
+  title: string;
+  description?: string;
+  workerId: string[];
+  createdAt: string;
+  deadline?: string;
+  type: string;
+  label?: string;
+}
+
+export interface ITodo {
+  id: string;
+  title: string;
+  description: string | undefined;
+  workerId: string[];
+  createdAt: string;
+  deadline: string | undefined;
+  type: string;
+  label: string | undefined;
+}

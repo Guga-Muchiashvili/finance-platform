@@ -78,3 +78,13 @@ export const LeadSchema = yup.object().shape({
   seen: yup.boolean().required("Seen status is required"),
   description: yup.string().required("Description is required"),
 });
+
+export const todoSchema = yup.object().shape({
+  title: yup.string().required("Title is required"),
+  description: yup.string(),
+  workerId: yup.array().of(yup.string()).required("Worker IDs are required"),
+  createdAt: yup.string().required("Creation date is required"),
+  deadline: yup.string(),
+  type: yup.string().required("Type is required"),
+  label: yup.string(),
+});

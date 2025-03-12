@@ -116,10 +116,10 @@ export async function fetchLeadById(id: string) {
 
 export async function fetchSubscriptions() {
   try {
-    const Leads = await mainPrisma.lead.findMany();
-    return Leads;
+    const Subscriptions = await mainPrisma.subscription.findMany();
+    return Subscriptions;
   } catch (error) {
-    console.error("Error fetching Leads:", error);
+    console.error("Error fetching Subscriptions:", error);
     throw error;
   }
 }
@@ -139,6 +139,35 @@ export async function fetchSubscriptionById(id: string) {
     return Subscription;
   } catch (error) {
     console.error("Error fetching Subscription:", error);
+    throw error;
+  }
+}
+
+export async function fetchTodos() {
+  try {
+    const Todos = await mainPrisma.todo.findMany();
+    return Todos;
+  } catch (error) {
+    console.error("Error fetching Todos:", error);
+    throw error;
+  }
+}
+
+export async function fetchTodoById(id: string) {
+  try {
+    const Todo = await mainPrisma.todo.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!Todo) {
+      throw new Error(`Todo with id ${id} not found.`);
+    }
+
+    return Todo;
+  } catch (error) {
+    console.error("Error fetching Todo:", error);
     throw error;
   }
 }
