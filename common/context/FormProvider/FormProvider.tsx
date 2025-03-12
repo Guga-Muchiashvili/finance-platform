@@ -5,6 +5,7 @@ import {
   IFormLead,
   IFormModel,
   IFormSubscription,
+  IFormTodo,
   IFormWorker,
 } from "@/common/types";
 import React from "react";
@@ -25,6 +26,7 @@ const FormComponent = <
     | IFormDiscordEarning
     | IFormDiscordWorker
     | IFormSubscription
+    | IFormTodo
 >({
   children,
   methods,

@@ -14,6 +14,7 @@ import { useGetWorkersSallary } from "@/queries/ModelQueries/useGetPaymentAmount
 import useDeleteLeadlMutation from "@/mutations/ModelMutations/DeleteLead";
 import ConfirmationModal from "./elements/ConfirmationModal";
 import useDeleteSubscriptionMutation from "@/mutations/CommonMutations/DeleteSubscription";
+import useDeleteTodolMutation from "@/mutations/ModelMutations/DeleteTodo";
 
 const ModelsDashboard = () => {
   const { data: DashboardData } = useGetModelDashboardData();
@@ -24,6 +25,7 @@ const ModelsDashboard = () => {
   const { mutate: deleteWorker } = useDeleteWorker();
   const { mutate: deleteTransaction } = useDeleteTransactionMutation();
   const { mutate: deleteSubscription } = useDeleteSubscriptionMutation();
+  const { mutate: deleteTodo } = useDeleteTodolMutation();
   const { mutate: deleteLead } = useDeleteLeadlMutation();
 
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
@@ -31,9 +33,11 @@ const ModelsDashboard = () => {
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [isLeadModelOpen, setIsLeadModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isTodonModalOpen, setIsTodonModalOpen] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
   const [selectedWorkerId, setSelectedWorkerId] = useState("");
   const [selectedLeadId, setSelectedLeadId] = useState("");
+  const [selectedTodoId, setSelectedTodoId] = useState("");
   const [selectedSubscription, setselectedSubscription] = useState("");
   const [selectedTransactionId, setSelectedTransactionId] = useState("");
 
@@ -73,6 +77,10 @@ const ModelsDashboard = () => {
     setSelectedTransactionId(transactionId);
     setIsTransactionModalOpen(true);
   };
+  const handleDeleteTodoClick = (TodoId: string) => {
+    setSelectedTodoId(TodoId);
+    setIsTodonModalOpen(true);
+  };
 
   const handleConfirmModelDelete = () => {
     if (selectedModelId) deleteModel(selectedModelId);
@@ -86,6 +94,10 @@ const ModelsDashboard = () => {
   const handleConfirmSubscriptionDelete = () => {
     if (selectedSubscription) deleteSubscription(selectedSubscription);
     setIsSubscriptionModalOpen(false);
+  };
+  const handleConfirmTodoDelete = () => {
+    if (selectedTodoId) deleteTodo(selectedTodoId);
+    setIsTodonModalOpen(false);
   };
 
   const handleConfirmWorkerDelete = () => {
@@ -408,6 +420,39 @@ const ModelsDashboard = () => {
               ))}
             </div>
           </div>
+          <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
+            <div className="flex justify-between">
+              <h1 className="text-2xl">Todos</h1>
+              <button
+                className="bg-blue-600 text-white rounded-xl px-3 py-1 text-xl"
+                onClick={() => route.push("Models/Todos/create")}
+              >
+                Add Todo
+              </button>
+            </div>
+            <div className="h-[40vh] overflow-y-auto hide-scrollbar">
+              {DashboardData?.todos.map((item) => (
+                <div
+                  className="w-full h-20 justify-between px-12 pr-20  relative mt-4 flex items-center border-[1px] shadow-lg rounded-xl p-3"
+                  key={item.id}
+                >
+                  <h1 className="text-2xl">{item.title}</h1>
+                  <h1 className="text-2xl">{item.createdAt}</h1>
+                  <h1 className="text-2xl">{item.type}</h1>
+                  <h1 className="text-2xl">{item.deadline}</h1>
+                  <h1 className="text-2xl">{item.label}</h1>
+                  <FaEdit
+                    className="text-green-600 absolute right-9 cursor-pointer"
+                    onClick={() => route.push(`Models/Todos/edit/${item.id}`)}
+                  />
+                  <FaTrash
+                    className="text-red-500 absolute right-3 cursor-pointer"
+                    onClick={() => handleDeleteTodoClick(item.id)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
       <div className="w-full h-[10vh] mt-12 rounded-xl text-xl text-blue-600 bg-white flex items-center justify-between p-4 shadow">
@@ -464,6 +509,13 @@ const ModelsDashboard = () => {
         <ConfirmationModal
           close={handleCancelDelete}
           deleteFunction={handleConfirmSubscriptionDelete}
+          title="Are you sure you want to delete this Subscription?"
+        />
+      )}
+      {isTodonModalOpen && (
+        <ConfirmationModal
+          close={handleCancelDelete}
+          deleteFunction={handleConfirmTodoDelete}
           title="Are you sure you want to delete this Subscription?"
         />
       )}

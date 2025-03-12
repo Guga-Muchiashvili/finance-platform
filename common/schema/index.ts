@@ -82,7 +82,10 @@ export const LeadSchema = yup.object().shape({
 export const todoSchema = yup.object().shape({
   title: yup.string().required("Title is required"),
   description: yup.string(),
-  workerId: yup.array().of(yup.string()).required("Worker IDs are required"),
+  workerId: yup
+    .array()
+    .of(yup.string().required())
+    .required("Worker IDs are required"),
   createdAt: yup.string().required("Creation date is required"),
   deadline: yup.string(),
   type: yup.string().required("Type is required"),

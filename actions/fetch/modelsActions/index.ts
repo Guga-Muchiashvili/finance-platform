@@ -14,13 +14,15 @@ import { mainPrisma } from "../../../common/lib/db";
 
 export const getModelDashboardData = async () => {
   try {
-    const [earnings, workers, models, leads, subscription] = await Promise.all([
-      mainPrisma.earning.findMany(),
-      mainPrisma.worker.findMany(),
-      mainPrisma.model.findMany(),
-      mainPrisma.lead.findMany(),
-      mainPrisma.subscription.findMany(),
-    ]);
+    const [earnings, workers, models, leads, subscription, todos] =
+      await Promise.all([
+        mainPrisma.earning.findMany(),
+        mainPrisma.worker.findMany(),
+        mainPrisma.model.findMany(),
+        mainPrisma.lead.findMany(),
+        mainPrisma.subscription.findMany(),
+        mainPrisma.todo.findMany(),
+      ]);
 
     const moneyIn = earnings
       .reduce((sum, earning) => sum + parseFloat(earning.total), 0)
@@ -296,6 +298,7 @@ export const getModelDashboardData = async () => {
       totalTransactionFee,
       Leadlabels,
       leads,
+      todos,
       LeadchartData,
       subscription: ModelSubscriptions,
       ModelsPieData: modelTransaction,
