@@ -19,6 +19,7 @@ export const modelSchema = yup.object().shape({
   telegram: yup.string().required("Telegram is required"),
   workers: yup.array().of(yup.string().required()),
   earnings: yup.array().of(yup.string().required()),
+  milestone: yup.string().required(),
 });
 
 export const workerSchema = yup.object().shape({

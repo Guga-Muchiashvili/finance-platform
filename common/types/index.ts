@@ -36,6 +36,7 @@ export interface Imodel {
   telegram: string;
   workers: string[];
   earnings: string[];
+  milestone: string;
 }
 
 export interface IFormModel {
@@ -51,6 +52,7 @@ export interface IFormModel {
   telegram: string;
   workers?: string[];
   earnings?: string[];
+  milestone: string;
 }
 
 export interface FormElementProps {

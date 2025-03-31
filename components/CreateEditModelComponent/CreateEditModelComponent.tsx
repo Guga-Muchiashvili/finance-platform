@@ -83,6 +83,7 @@ const CreateEditModelComponent = ({
             <TextFieldElementComponent label="image" name="image" />
             <TextFieldElementComponent label="email" name="email" />
             <TextFieldElementComponent label="password" name="password" />
+            <TextFieldElementComponent label="milestone" name="milestone" />
           </div>
           <h1 className="text-2xl text-blue-600 mt-2">Additional Info</h1>
 

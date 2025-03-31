@@ -21,6 +21,7 @@ export default function Page() {
     telegram: "",
     earnings: [],
     workers: [],
+    milestone: "0",
   };
   return <CreateEditModelComponent defaultValues={defaultValues} />;
 }

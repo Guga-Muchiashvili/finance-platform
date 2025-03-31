@@ -61,6 +61,8 @@ model Model {
   telegram    String
   workers     String[]
   earnings    String[]
+  milestone   String
+
 }
 
 model Worker {

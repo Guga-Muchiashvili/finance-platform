@@ -24,6 +24,7 @@ export default async function Page({
     telegram: modelData.telegram,
     earnings: modelData.earnings,
     workers: modelData.workers,
+    milestone: modelData.milestone,
   };
 
   return (
