@@ -15,31 +15,37 @@ import useDeleteLeadlMutation from "@/mutations/ModelMutations/DeleteLead";
 import ConfirmationModal from "./elements/ConfirmationModal";
 import useDeleteSubscriptionMutation from "@/mutations/CommonMutations/DeleteSubscription";
 import useDeleteTodolMutation from "@/mutations/ModelMutations/DeleteTodo";
+import { useGetWorkersPercentage } from "@/queries/ModelQueries/useGetWorkersPercentage/useGetWorkersPercentage";
+import useEditPercentageMutation from "@/mutations/ModelMutations/EditPercentage";
 
 const ModelsDashboard = () => {
   const { data: DashboardData } = useGetModelDashboardData();
   const { data: workerSallary } = useGetWorkersSallary();
+  const { data: workerPercentage } = useGetWorkersPercentage();
+
   const route = useRouter();
 
-  const { mutate: deleteModel } = useDeleteModelMutation();
   const { mutate: deleteWorker } = useDeleteWorker();
-  const { mutate: deleteTransaction } = useDeleteTransactionMutation();
-  const { mutate: deleteSubscription } = useDeleteSubscriptionMutation();
   const { mutate: deleteTodo } = useDeleteTodolMutation();
   const { mutate: deleteLead } = useDeleteLeadlMutation();
+  const { mutate: deleteModel } = useDeleteModelMutation();
+  const { mutate: editPercentage } = useEditPercentageMutation();
+  const { mutate: deleteTransaction } = useDeleteTransactionMutation();
+  const { mutate: deleteSubscription } = useDeleteSubscriptionMutation();
 
-  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
-  const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
-  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
-  const [isLeadModelOpen, setIsLeadModalOpen] = useState(false);
-  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const [isTodonModalOpen, setIsTodonModalOpen] = useState(false);
-  const [selectedModelId, setSelectedModelId] = useState("");
-  const [selectedWorkerId, setSelectedWorkerId] = useState("");
+  const [editValue, setEditValue] = useState<Record<string, number>>({});
   const [selectedLeadId, setSelectedLeadId] = useState("");
   const [selectedTodoId, setSelectedTodoId] = useState("");
+  const [isLeadModelOpen, setIsLeadModalOpen] = useState(false);
+  const [selectedModelId, setSelectedModelId] = useState("");
+  const [isTodonModalOpen, setIsTodonModalOpen] = useState(false);
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [selectedWorkerId, setSelectedWorkerId] = useState("");
+  const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
   const [selectedSubscription, setselectedSubscription] = useState("");
   const [selectedTransactionId, setSelectedTransactionId] = useState("");
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
   const ModelLabels =
     DashboardData?.ModelsPieData?.map((data) => `${data.label}`) || [];
@@ -53,6 +59,15 @@ const ModelsDashboard = () => {
     DashboardData?.WorkersPieData?.map((data) => Number(data.value)) || [];
   const MonthBarData =
     DashboardData?.moneyByMonth?.map((data) => Number(data.value)) || [];
+
+  const handleSave = (id: string) => {
+    if (editValue[id] !== undefined) {
+      editPercentage({
+        id,
+        updatedData: { percentage: editValue[id] },
+      });
+    }
+  };
 
   const handleDeleteModelClick = (modelId: string) => {
     setSelectedModelId(modelId);
@@ -336,13 +351,68 @@ const ModelsDashboard = () => {
                   >
                     <h1 className="text-2xl w-32">{item.name}</h1>
                     <h1 className="text-2xl text-right w-36 flex items-center justify-center ">
-                      {item.amountDue}$
+                      balance : {item.balanceTransactions}$
                     </h1>
+                    <h1 className="text-2xl text-right w-36 flex items-center justify-center ">
+                      hold : {item.holdTransactions}$
+                    </h1>
+                    <h1 className="text-2xl text-right w-36 flex items-center justify-center "></h1>
                     <h1 className="text-2xl w-32">
                       paid : {item.totalSalaryPaid}$
                     </h1>
                   </div>
                 ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="w-full flex flex-col gap-4 mt-14">
+        <h1 className="text-2xl text-blue-600">Workers Percentages</h1>
+        <div className="">
+          <div className="bg-white h-fit py-4 rounded-xl p-3 shadow">
+            <div className="bg-white p-4 rounded-xl shadow">
+              <h1 className="text-2xl text-blue-600 mb-4">
+                Edit Worker Percentages
+              </h1>
+              <table className="w-full border text-lg">
+                <thead>
+                  <tr className="bg-blue-700 text-white">
+                    <th className="p-2 text-left">Worker</th>
+                    <th className="p-2 text-left">Percentage (%)</th>
+                    <th className="p-2 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {workerPercentage?.map((item) => (
+                    <tr key={item.id} className="border-t">
+                      <td className="p-2">
+                        {item.workerName || item.workerId}
+                      </td>
+                      <td className="p-2">
+                        <input
+                          type="number"
+                          value={editValue[item.id] ?? item.percentage}
+                          onChange={(e) =>
+                            setEditValue((prev) => ({
+                              ...prev,
+                              [item.id]: parseInt(e.target.value, 10),
+                            }))
+                          }
+                          className="border px-2 py-1 w-24"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <button
+                          onClick={() => handleSave(item.id)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded"
+                        >
+                          Save
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

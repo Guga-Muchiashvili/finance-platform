@@ -109,3 +109,9 @@ model Todo {
   type          String
   label         String
 }
+
+model percentages {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    workerId  String
+    percentage Int
+}

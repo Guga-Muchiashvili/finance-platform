@@ -57,7 +57,7 @@ export async function fetchDashboardData() {
         .reduce(
           (sum, earning) =>
             sum +
-            (Number(earning.total) * (Number(earning.percentage) - 3.5)) / 100,
+            (Number(earning.total) * (Number(earning.percentage) - 4.5)) / 100,
           0
         );
 

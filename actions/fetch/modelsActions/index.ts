@@ -412,7 +412,11 @@ export async function editWorker(
 export async function addWorker(data: IFormWorker): Promise<IWorker> {
   try {
     const newWorker = await mainPrisma.worker.create({
-      data: { ...data, email: data.email || "", idNumber: data.idNumber || "" },
+      data: {
+        ...data,
+        email: data.email || "",
+        idNumber: data.idNumber || "",
+      },
     });
 
     await mainPrisma.model.update({
@@ -423,6 +427,20 @@ export async function addWorker(data: IFormWorker): Promise<IWorker> {
         },
       },
     });
+
+    await mainPrisma.percentages
+      .create({
+        data: {
+          workerId: newWorker.id,
+          percentage: 40,
+        },
+      })
+      .catch((err) => {
+        if (!err.message.includes("Unique constraint failed")) {
+          console.error("Error creating default percentage:", err);
+          throw err;
+        }
+      });
 
     return newWorker;
   } catch (error) {
@@ -634,73 +652,76 @@ export async function calculatePaymentsForAllWorkers(): Promise<
     modelId: string;
     amountDue: string;
     totalSalaryPaid: string;
+    holdTransactions: string;
+    balanceTransactions: string;
   }[]
 > {
   try {
-    const workers = await mainPrisma.worker.findMany();
-
-    const earnings = await mainPrisma.earning.findMany({
-      where: {
-        status: { not: "completed" },
-      },
+    const workers = await mainPrisma.worker.findMany({
+      where: { active: true },
     });
-
-    const completedEarnings = await mainPrisma.earning.findMany({
-      where: {
-        status: "completed",
-      },
-    });
+    const [earnings, completedEarnings, transactions] = await Promise.all([
+      mainPrisma.earning.findMany({ where: { status: { not: "completed" } } }),
+      mainPrisma.earning.findMany({ where: { status: "completed" } }),
+      mainPrisma.earning.findMany(),
+    ]);
 
     const earningsByWorker: Record<string, typeof earnings> = {};
-    earnings.forEach((earning) => {
-      if (!earningsByWorker[earning.workerId]) {
-        earningsByWorker[earning.workerId] = [];
-      }
-      earningsByWorker[earning.workerId].push(earning);
-    });
-
     const completedEarningsByWorker: Record<string, typeof completedEarnings> =
       {};
-    completedEarnings.forEach((earning) => {
-      if (!completedEarningsByWorker[earning.workerId]) {
-        completedEarningsByWorker[earning.workerId] = [];
-      }
-      completedEarningsByWorker[earning.workerId].push(earning);
-    });
+    const transactionsByWorker: Record<string, typeof transactions> = {};
+
+    for (const earning of earnings) {
+      (earningsByWorker[earning.workerId] ??= []).push(earning);
+    }
+
+    for (const earning of completedEarnings) {
+      (completedEarningsByWorker[earning.workerId] ??= []).push(earning);
+    }
+
+    for (const tx of transactions) {
+      (transactionsByWorker[tx.workerId] ??= []).push(tx);
+    }
 
     const workerPayments = workers.map((worker) => {
       const workerEarnings = earningsByWorker[worker.id] || [];
       const completedWorkerEarnings =
         completedEarningsByWorker[worker.id] || [];
+      const workerTransactions = transactionsByWorker[worker.id] || [];
 
       const amountDue = workerEarnings.reduce((sum, earning) => {
-        const transactionAmount = parseFloat(earning.total.toString());
+        const total = parseFloat(earning.total);
         const percentage = Number(earning.percentage);
-
-        if (isNaN(transactionAmount) || isNaN(percentage)) {
-          console.warn(
-            `Invalid earning data for worker ${worker.id}:`,
-            earning
-          );
-          return sum;
-        }
-
-        return sum + (transactionAmount * Number(percentage - 3.5)) / 100;
+        return isNaN(total) || isNaN(percentage)
+          ? sum
+          : sum + (total * (percentage - 4.5)) / 100;
       }, 0);
 
       const totalSalaryPaid = completedWorkerEarnings.reduce((sum, earning) => {
+        const total = parseFloat(earning.total);
         const percentage = Number(earning.percentage);
-
-        const transactionAmount = parseFloat(earning.total.toString());
-        if (isNaN(transactionAmount)) {
-          console.warn(
-            `Invalid completed earning data for worker ${worker.id}:`,
-            earning
-          );
-          return sum;
-        }
-        return sum + (transactionAmount * Number(percentage - 3.5)) / 100;
+        return isNaN(total) || isNaN(percentage)
+          ? sum
+          : sum + (total * (percentage - 4.5)) / 100;
       }, 0);
+
+      const holdTransactions = workerTransactions
+        .filter((tx) => tx.status.toLowerCase() === "hold")
+        .reduce((sum, tx) => {
+          const total = parseFloat(tx.total);
+          return isNaN(total)
+            ? sum
+            : sum + (total * (Number(tx.percentage) - 4.5)) / 100;
+        }, 0);
+
+      const balanceTransactions = workerTransactions
+        .filter((tx) => tx.status.toLowerCase() === "balance")
+        .reduce((sum, tx) => {
+          const total = parseFloat(tx.total);
+          return isNaN(total)
+            ? sum
+            : sum + (total * (Number(tx.percentage) - 4.5)) / 100;
+        }, 0);
 
       return {
         id: worker.id,
@@ -708,6 +729,8 @@ export async function calculatePaymentsForAllWorkers(): Promise<
         modelId: worker.modelId,
         amountDue: amountDue.toFixed(1),
         totalSalaryPaid: totalSalaryPaid.toFixed(1),
+        holdTransactions: holdTransactions.toFixed(1),
+        balanceTransactions: balanceTransactions.toFixed(1),
       };
     });
 
@@ -777,4 +800,63 @@ export async function deleteTodo(id: string): Promise<void> {
     console.error("Error deleting Todo:", error);
     throw error;
   }
+}
+
+export async function getWorkerPercentages() {
+  await syncPercentagesWithWorkers();
+
+  const workers = await mainPrisma.worker.findMany({ where: { active: true } });
+  const percentages = await mainPrisma.percentages.findMany();
+
+  return percentages
+    .filter((p) => workers.some((w) => w.id === p.workerId))
+    .map((p) => ({
+      ...p,
+      workerName: workers.find((w) => w.id === p.workerId)?.name || "Unknown",
+    }));
+}
+
+export async function updateWorkerPercentage({
+  id,
+  percentage,
+}: {
+  id: string;
+  percentage: number;
+}) {
+  const updated = await mainPrisma.percentages.update({
+    where: { id },
+    data: { percentage },
+  });
+
+  return updated;
+}
+
+export async function syncPercentagesWithWorkers(defaultPercentage = 40) {
+  const allWorkers = await mainPrisma.worker.findMany();
+  const existing = await mainPrisma.percentages.findMany();
+
+  const existingWorkerIds = new Set(existing.map((p) => p.workerId));
+  const currentWorkerIds = new Set(allWorkers.map((w) => w.id));
+
+  const missing = allWorkers.filter(
+    (worker) => !existingWorkerIds.has(worker.id)
+  );
+  for (const worker of missing) {
+    await mainPrisma.percentages.create({
+      data: {
+        workerId: worker.id,
+        percentage: defaultPercentage,
+      },
+    });
+  }
+
+  const orphaned = existing.filter((p) => !currentWorkerIds.has(p.workerId));
+  for (const orphan of orphaned) {
+    await mainPrisma.percentages.delete({ where: { id: orphan.id } });
+  }
+
+  return {
+    created: missing.length,
+    deleted: orphaned.length,
+  };
 }
