@@ -24,70 +24,129 @@ export const getModelDashboardData = async () => {
         mainPrisma.todo.findMany(),
       ]);
 
+    const parseCreatedAt = (v: unknown): Date | null => {
+      if (!v) return null;
+      if (v instanceof Date && !isNaN(v.getTime())) return v;
+      const s = String(v);
+
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+        const d = new Date(s);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
+        const [dayStr, monthStr, yearStr] = s.split("/");
+        const day = Number(dayStr);
+        const month = Number(monthStr);
+        const year = Number(yearStr);
+        const d = new Date(year, month - 1, day);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
     const moneyIn = earnings
-      .reduce((sum, earning) => sum + parseFloat(earning.total), 0)
+      .reduce((sum, earning) => sum + parseFloat(earning.total || "0"), 0)
       .toFixed(1);
 
     const completedEarnings = earnings.filter(
-      (earning) => earning.status.toLowerCase() === "completed"
+      (earning) => String(earning.status || "").toLowerCase() === "completed"
     );
 
     const moneyOut = completedEarnings
-      .reduce((sum, earning) => sum + parseFloat(earning.total), 0)
+      .reduce((sum, earning) => sum + parseFloat(earning.total || "0"), 0)
       .toFixed(1);
 
     const ourShare = earnings
       .reduce((sum, earning) => {
-        return (
-          sum +
-          (parseFloat(earning.total) * (100 - parseFloat(earning.percentage))) /
-            100
-        );
+        const total = parseFloat(earning.total || "0");
+        const perc = parseFloat(earning.percentage || "0");
+        return sum + (total * (100 - perc)) / 100;
       }, 0)
       .toFixed(1);
 
     const ourShareBroughtOut = completedEarnings
       .reduce((sum, earning) => {
-        return (
-          sum +
-          (parseFloat(earning.total) * (100 - parseFloat(earning.percentage))) /
-            100
-        );
+        const total = parseFloat(earning.total || "0");
+        const perc = parseFloat(earning.percentage || "0");
+        return sum + (total * (100 - perc)) / 100;
       }, 0)
       .toFixed(1);
 
-    const monthlyTransactions: Record<string, number> = {};
+    const monthlyTotals: Record<string, number> = {};
+    const validDates: number[] = [];
+
     const transactionFees = earnings.map((earning) => {
-      const transactionFee =
-        parseFloat(String(earning.amount)) - parseFloat(earning.total);
-      const date = new Date(earning.createdAt.split("/").reverse().join("-"));
-      const monthKey = date
-        .toLocaleString("en-US", { month: "long" })
-        .toLowerCase();
-      if (!monthlyTransactions[monthKey]) {
-        monthlyTransactions[monthKey] = 0;
+      const amount = parseFloat(String(earning.amount || "0"));
+      const total = parseFloat(earning.total || "0");
+      const date = parseCreatedAt(earning.createdAt);
+      if (date) {
+        validDates.push(date.getTime());
+        const key = `${date.getFullYear()}-${String(
+          date.getMonth() + 1
+        ).padStart(2, "0")}`;
+        monthlyTotals[key] = (monthlyTotals[key] || 0) + total;
       }
-      monthlyTransactions[monthKey] += parseFloat(earning.total);
-      return transactionFee;
+      return amount - total;
     });
 
     const totalTransactionFee = transactionFees
-      .reduce((sum, fee) => sum + fee, 0)
+      .reduce((sum, fee) => sum + (isFinite(fee) ? fee : 0), 0)
       .toFixed(1);
 
-    const allIntervals: string[] = [];
-    const firstTransactionDate = new Date(
-      Math.min(
-        ...earnings.map((earning) =>
-          new Date(earning.createdAt.split("/").reverse().join("-")).getTime()
-        )
-      )
-    );
+    let moneyByMonth: { label: string; value: string }[] = [];
+    let firstTransactionDate: Date | null = null;
 
+    if (validDates.length > 0) {
+      firstTransactionDate = new Date(Math.min(...validDates));
+      const lastTransactionDate = new Date(Math.max(...validDates));
+
+      const startMonth = new Date(
+        firstTransactionDate.getFullYear(),
+        firstTransactionDate.getMonth(),
+        1
+      );
+
+      const today = new Date();
+      const lastOrToday =
+        today.getTime() > lastTransactionDate.getTime()
+          ? today
+          : lastTransactionDate;
+
+      const endMonth = new Date(
+        lastOrToday.getFullYear(),
+        lastOrToday.getMonth(),
+        1
+      );
+
+      const out: { label: string; value: string }[] = [];
+      for (
+        let d = new Date(startMonth);
+        d <= endMonth;
+        d.setMonth(d.getMonth() + 1)
+      ) {
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}`;
+        const label = `${d
+          .toLocaleString("en-US", { month: "long" })
+          .toLowerCase()} ${d.getFullYear()}`;
+        const val = monthlyTotals[key] || 0;
+        out.push({ label, value: val.toFixed(1) });
+      }
+      moneyByMonth = out;
+    }
+    const allIntervals: string[] = [];
     const today = new Date();
+    const startForIntervals =
+      firstTransactionDate ??
+      new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     for (
-      let date = new Date(firstTransactionDate);
+      let date = new Date(startForIntervals);
       date <= today;
       date.setDate(date.getDate() + 14)
     ) {
@@ -111,32 +170,21 @@ export const getModelDashboardData = async () => {
           data: new Array(allIntervals.length).fill(0),
         };
       }
-
-      const groupedEarnings: Record<string, number> = {};
-
+      const grouped: Record<string, number> = {};
       modelEarnings.forEach((earning) => {
-        const date = new Date(earning.createdAt.split("/").reverse().join("-"));
+        const date = parseCreatedAt(earning.createdAt);
+        if (!date || !firstTransactionDate) return;
         const intervalIndex = Math.floor(
           (date.getTime() - firstTransactionDate.getTime()) /
             (14 * 24 * 60 * 60 * 1000)
         );
-
-        if (!groupedEarnings[allIntervals[intervalIndex]]) {
-          groupedEarnings[allIntervals[intervalIndex]] = 0;
-        }
-        groupedEarnings[allIntervals[intervalIndex]] += parseFloat(
-          earning.total
-        );
+        const bucket = allIntervals[intervalIndex];
+        if (!bucket) return;
+        grouped[bucket] =
+          (grouped[bucket] || 0) + parseFloat(earning.total || "0");
       });
-
-      const data = allIntervals.map((interval) => {
-        return (groupedEarnings[interval] || 0).toFixed(1);
-      });
-
-      return {
-        label: model.name,
-        data,
-      };
+      const data = allIntervals.map((int) => (grouped[int] || 0).toFixed(1));
+      return { label: model.name, data };
     });
 
     const workerChartData = workers.map((worker) => {
@@ -147,32 +195,21 @@ export const getModelDashboardData = async () => {
           data: new Array(allIntervals.length).fill(0),
         };
       }
-
-      const groupedEarnings: Record<string, number> = {};
-
+      const grouped: Record<string, number> = {};
       workerEarnings.forEach((earning) => {
-        const date = new Date(earning.createdAt.split("/").reverse().join("-"));
+        const date = parseCreatedAt(earning.createdAt);
+        if (!date || !firstTransactionDate) return;
         const intervalIndex = Math.floor(
           (date.getTime() - firstTransactionDate.getTime()) /
             (14 * 24 * 60 * 60 * 1000)
         );
-
-        if (!groupedEarnings[allIntervals[intervalIndex]]) {
-          groupedEarnings[allIntervals[intervalIndex]] = 0;
-        }
-        groupedEarnings[allIntervals[intervalIndex]] += parseFloat(
-          earning.total
-        );
+        const bucket = allIntervals[intervalIndex];
+        if (!bucket) return;
+        grouped[bucket] =
+          (grouped[bucket] || 0) + parseFloat(earning.total || "0");
       });
-
-      const data = allIntervals.map((interval) => {
-        return (groupedEarnings[interval] || 0).toFixed(1);
-      });
-
-      return {
-        label: worker.name,
-        data,
-      };
+      const data = allIntervals.map((int) => (grouped[int] || 0).toFixed(1));
+      return { label: worker.name, data };
     });
 
     const modelTransaction = await Promise.all(
@@ -184,11 +221,7 @@ export const getModelDashboardData = async () => {
           (sum, earning) => sum + parseFloat(earning.total || "0"),
           0
         );
-
-        return {
-          label: model.name,
-          value: totalEarnings.toFixed(1),
-        };
+        return { label: model.name, value: totalEarnings.toFixed(1) };
       })
     );
 
@@ -201,61 +234,52 @@ export const getModelDashboardData = async () => {
           (sum, earning) => sum + parseFloat(earning.total || "0"),
           0
         );
-
-        return {
-          label: worker.name,
-          value: totalEarnings.toFixed(1),
-        };
+        return { label: worker.name, value: totalEarnings.toFixed(1) };
       })
     );
 
-    const transactionTotals = earnings.map((earning) =>
-      parseFloat(earning.total)
-    );
-
-    const maxTransactionTotal = Math.max(...transactionTotals).toFixed(1);
-
-    const averageTransactionTotal = (
-      transactionTotals.reduce((sum, total) => sum + total, 0) /
-      transactionTotals.length
-    ).toFixed(1);
+    const transactionTotals = earnings.map((e) => parseFloat(e.total || "0"));
+    const maxTransactionTotal = transactionTotals.length
+      ? Math.max(...transactionTotals).toFixed(1)
+      : "0.0";
+    const averageTransactionTotal = transactionTotals.length
+      ? (
+          transactionTotals.reduce((s, t) => s + t, 0) /
+          transactionTotals.length
+        ).toFixed(1)
+      : "0.0";
 
     function calculateStreak(transactions: IEarning[]) {
       if (!transactions.length) return 0;
-
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       const uniqueDates = Array.from(
         new Set(
-          transactions.map((transaction) => {
-            const [day, month, year] = transaction.createdAt
-              .split("/")
-              .map(Number);
-            return new Date(year, month - 1, day).setHours(0, 0, 0, 0);
+          transactions.map((tx) => {
+            const d = parseCreatedAt(tx.createdAt);
+            if (!d) return NaN;
+            return new Date(
+              d.getFullYear(),
+              d.getMonth(),
+              d.getDate()
+            ).getTime();
           })
         )
-      ).sort((a, b) => b - a);
+      )
+        .filter((n) => Number.isFinite(n))
+        .sort((a, b) => b - a);
 
-      if (uniqueDates[0] !== today.getTime()) {
-        return 0;
-      }
+      if (!uniqueDates.length || uniqueDates[0] !== today.getTime()) return 0;
 
       let streak = 1;
-
       for (let i = 0; i < uniqueDates.length - 1; i++) {
-        const currentDate = new Date(uniqueDates[i]);
-        const previousDate = new Date(uniqueDates[i + 1]);
-
-        previousDate.setDate(previousDate.getDate() + 1);
-
-        if (currentDate.getTime() === previousDate.getTime()) {
-          streak++;
-        } else {
-          break;
-        }
+        const cur = new Date(uniqueDates[i]);
+        const prev = new Date(uniqueDates[i + 1]);
+        prev.setDate(prev.getDate() + 1);
+        if (cur.getTime() === prev.getTime()) streak++;
+        else break;
       }
-
       return streak;
     }
 
@@ -263,25 +287,18 @@ export const getModelDashboardData = async () => {
 
     const activeLeads = leads.filter((lead) => lead.active);
     const modelLeadCounts: Record<string, number> = {};
-
     activeLeads.forEach((lead) => {
       lead.modelId.forEach((modelId) => {
-        if (!modelLeadCounts[modelId]) {
-          modelLeadCounts[modelId] = 0;
-        }
+        if (!modelLeadCounts[modelId]) modelLeadCounts[modelId] = 0;
         modelLeadCounts[modelId]++;
       });
     });
 
-    const leadChartData = models.map((model) => {
-      return modelLeadCounts[model.id] || 0;
-    });
-
-    const Leadlabels = models.map((model) => model.name);
-    const LeadchartData = leadChartData;
+    const Leadlabels = models.map((m) => m.name);
+    const LeadchartData = models.map((m) => modelLeadCounts[m.id] || 0);
 
     const ModelSubscriptions = subscription.filter(
-      (item) => item.type == "Model"
+      (item) => item.type === "Model"
     );
 
     return {
@@ -294,7 +311,7 @@ export const getModelDashboardData = async () => {
       models,
       modelChartData,
       workerChartData,
-      monthlyTransactions,
+      monthlyTransactions: monthlyTotals,
       totalTransactionFee,
       Leadlabels,
       leads,
@@ -303,12 +320,10 @@ export const getModelDashboardData = async () => {
       subscription: ModelSubscriptions,
       ModelsPieData: modelTransaction,
       WorkersPieData: workerTransaction,
-      moneyByMonth: Object.entries(monthlyTransactions).map(
-        ([month, value]) => ({ label: month, value: value.toFixed(1) })
-      ),
+      moneyByMonth,
       maxTransactionTotal,
       averageTransactionTotal,
-      streak: streak,
+      streak,
       chartLabels: allIntervals,
     };
   } catch (error) {

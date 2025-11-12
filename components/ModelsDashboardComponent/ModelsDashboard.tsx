@@ -154,7 +154,7 @@ const ModelsDashboard = () => {
 
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
-          <h1 className="text-2xl">Money In</h1>
+          <h1 className="text-2xl">Money dsadwaIn</h1>
           <h1 className="text-6xl mt-4">{DashboardData?.moneyIn}$</h1>
         </div>
         <div className="bg-white h-fit py-8 rounded-xl p-3 shadow">
