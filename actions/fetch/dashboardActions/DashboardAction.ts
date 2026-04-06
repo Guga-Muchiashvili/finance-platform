@@ -40,7 +40,7 @@ export async function fetchDashboardData() {
           (sum, transaction) =>
             sum +
             (Number(transaction.total) * Number(transaction.percentage)) / 100,
-          0
+          0,
         );
 
       combinedWorkers.push({
@@ -58,7 +58,7 @@ export async function fetchDashboardData() {
           (sum, earning) =>
             sum +
             (Number(earning.total) * (Number(earning.percentage) - 4.5)) / 100,
-          0
+          0,
         );
 
       if (worker.name == "Admin") return;
@@ -95,7 +95,7 @@ export async function fetchDashboardData() {
         date: item.createdAt,
       }))
       .sort(
-        (a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime()
+        (a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime(),
       );
 
     transactions.forEach((item) => {
@@ -134,8 +134,8 @@ export async function fetchDashboardData() {
         ? new Date(
             Math.min(
               firstTransactionOther.getTime(),
-              firstTransactionMain.getTime()
-            )
+              firstTransactionMain.getTime(),
+            ),
           )
         : firstTransactionOther || firstTransactionMain;
 
@@ -145,7 +145,7 @@ export async function fetchDashboardData() {
 
     const generateGroupedAmounts = (
       transactions: Itransaction[] | IDiscordEarning[],
-      firstTransactionDate: Date
+      firstTransactionDate: Date,
     ): MonthlyAmounts => {
       const monthlyAmounts: MonthlyAmounts = {};
       const now = new Date();
@@ -241,11 +241,11 @@ export async function fetchDashboardData() {
 
     const monthlyAmountsOther = generateGroupedAmounts(
       transactions,
-      firstTransactionDate
+      firstTransactionDate,
     );
     const monthlyAmountsMain = generateGroupedAmounts(
       DiscordTransactions,
-      firstTransactionDate
+      firstTransactionDate,
     );
 
     const allPeriods = new Set([
@@ -256,10 +256,6 @@ export async function fetchDashboardData() {
     function isDateInPeriod(dateStr: string, periodStr: string) {
       const [day, month, year] = dateStr.split("/").map(Number);
       const dateToCheck = new Date(year, month - 1, day);
-
-      const [start, end] = periodStr.split(" - ");
-      const [startMonthStr, startDay] = start.split(" ");
-      const [endDay, endYear] = end.split(", ");
 
       const monthNames = [
         "Jan",
@@ -275,18 +271,35 @@ export async function fetchDashboardData() {
         "Nov",
         "Dec",
       ];
-      const startMonth = monthNames.indexOf(startMonthStr);
-      const endYearParsed = Number(endYear);
 
-      const startDate = new Date(endYearParsed, startMonth, Number(startDay));
+      if (periodStr.includes(" - ")) {
+        const [start, end] = periodStr.split(" - ");
+        const [startMonthStr, startDay] = start.split(" ");
+        const [endDay, endYear] = end.split(", ");
 
-      let endMonth = startMonth;
-      if (Number(endDay) < Number(startDay)) {
-        endMonth += 1;
+        const startMonth = monthNames.indexOf(startMonthStr);
+        const endYearParsed = Number(endYear);
+
+        const startDate = new Date(endYearParsed, startMonth, Number(startDay));
+
+        let endMonth = startMonth;
+        if (Number(endDay) < Number(startDay)) {
+          endMonth += 1;
+        }
+
+        const endDate = new Date(endYearParsed, endMonth, Number(endDay));
+
+        return dateToCheck >= startDate && dateToCheck <= endDate;
       }
-      const endDate = new Date(endYearParsed, endMonth, Number(endDay));
 
-      return dateToCheck >= startDate && dateToCheck <= endDate;
+      const [monthStr, yearStr] = periodStr.split(" ");
+      const monthIndex = monthNames.indexOf(monthStr);
+      const yearNum = Number(yearStr);
+
+      return (
+        dateToCheck.getMonth() === monthIndex &&
+        dateToCheck.getFullYear() === yearNum
+      );
     }
 
     const formattedChartData = [
@@ -448,7 +461,7 @@ export async function fetchDashboardData() {
 }
 
 export async function addSubscription(
-  data: IFormSubscription & { type: string }
+  data: IFormSubscription & { type: string },
 ): Promise<ISubscription> {
   try {
     const newSubscription = await mainPrisma.subscription.create({
@@ -463,7 +476,7 @@ export async function addSubscription(
 
 export async function editSubscription(
   id: string,
-  updatedData: IFormSubscription & { type: string }
+  updatedData: IFormSubscription & { type: string },
 ): Promise<ISubscription> {
   try {
     const SubscriptionToEdit = await mainPrisma.subscription.findUnique({

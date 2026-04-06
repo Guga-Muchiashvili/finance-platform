@@ -11,6 +11,8 @@ import WorkerBoxElement from "./elements/WorkerBoxElement";
 export default function LandingPageComponent() {
   const { data } = useGetDashboardData();
 
+  console.log(data);
+
   return (
     <div className="w-full flex flex-col gap-4 min-h-screen p-4 bg-gray-100">
       <div className="w-full h-20 flex items-center justify-between">

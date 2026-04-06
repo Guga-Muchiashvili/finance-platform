@@ -52,7 +52,7 @@ export const getModelDashboardData = async () => {
       .toFixed(1);
 
     const completedEarnings = earnings.filter(
-      (earning) => String(earning.status || "").toLowerCase() === "completed"
+      (earning) => String(earning.status || "").toLowerCase() === "completed",
     );
 
     const moneyOut = completedEarnings
@@ -85,7 +85,7 @@ export const getModelDashboardData = async () => {
       if (date) {
         validDates.push(date.getTime());
         const key = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
+          date.getMonth() + 1,
         ).padStart(2, "0")}`;
         monthlyTotals[key] = (monthlyTotals[key] || 0) + total;
       }
@@ -106,7 +106,7 @@ export const getModelDashboardData = async () => {
       const startMonth = new Date(
         firstTransactionDate.getFullYear(),
         firstTransactionDate.getMonth(),
-        1
+        1,
       );
 
       const today = new Date();
@@ -118,7 +118,7 @@ export const getModelDashboardData = async () => {
       const endMonth = new Date(
         lastOrToday.getFullYear(),
         lastOrToday.getMonth(),
-        1
+        1,
       );
 
       const out: { label: string; value: string }[] = [];
@@ -129,7 +129,7 @@ export const getModelDashboardData = async () => {
       ) {
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
           2,
-          "0"
+          "0",
         )}`;
         const label = `${d
           .toLocaleString("en-US", { month: "long" })
@@ -176,7 +176,7 @@ export const getModelDashboardData = async () => {
         if (!date || !firstTransactionDate) return;
         const intervalIndex = Math.floor(
           (date.getTime() - firstTransactionDate.getTime()) /
-            (14 * 24 * 60 * 60 * 1000)
+            (14 * 24 * 60 * 60 * 1000),
         );
         const bucket = allIntervals[intervalIndex];
         if (!bucket) return;
@@ -201,7 +201,7 @@ export const getModelDashboardData = async () => {
         if (!date || !firstTransactionDate) return;
         const intervalIndex = Math.floor(
           (date.getTime() - firstTransactionDate.getTime()) /
-            (14 * 24 * 60 * 60 * 1000)
+            (14 * 24 * 60 * 60 * 1000),
         );
         const bucket = allIntervals[intervalIndex];
         if (!bucket) return;
@@ -219,10 +219,10 @@ export const getModelDashboardData = async () => {
         });
         const totalEarnings = modelEarnings.reduce(
           (sum, earning) => sum + parseFloat(earning.total || "0"),
-          0
+          0,
         );
         return { label: model.name, value: totalEarnings.toFixed(1) };
-      })
+      }),
     );
 
     const workerTransaction = await Promise.all(
@@ -232,10 +232,10 @@ export const getModelDashboardData = async () => {
         });
         const totalEarnings = workerEarnings.reduce(
           (sum, earning) => sum + parseFloat(earning.total || "0"),
-          0
+          0,
         );
         return { label: worker.name, value: totalEarnings.toFixed(1) };
-      })
+      }),
     );
 
     const transactionTotals = earnings.map((e) => parseFloat(e.total || "0"));
@@ -262,10 +262,10 @@ export const getModelDashboardData = async () => {
             return new Date(
               d.getFullYear(),
               d.getMonth(),
-              d.getDate()
+              d.getDate(),
             ).getTime();
-          })
-        )
+          }),
+        ),
       )
         .filter((n) => Number.isFinite(n))
         .sort((a, b) => b - a);
@@ -298,7 +298,7 @@ export const getModelDashboardData = async () => {
     const LeadchartData = models.map((m) => modelLeadCounts[m.id] || 0);
 
     const ModelSubscriptions = subscription.filter(
-      (item) => item.type === "Model"
+      (item) => item.type === "Model",
     );
 
     return {
@@ -376,7 +376,7 @@ export async function deleteModel(id: string): Promise<void> {
 
 export async function editModel(
   id: string,
-  updatedData: IFormModel
+  updatedData: IFormModel,
 ): Promise<IFormModel> {
   try {
     const modelToEdit = await mainPrisma.model.findUnique({
@@ -401,7 +401,7 @@ export async function editModel(
 
 export async function editWorker(
   id: string,
-  updatedData: IFormWorker
+  updatedData: IFormWorker,
 ): Promise<IFormWorker> {
   try {
     const workerToEdit = await mainPrisma.worker.findUnique({
@@ -484,7 +484,7 @@ export async function deleteWorker(id: string): Promise<void> {
     }
 
     const updatedWorkers = modelToUpdate.workers.filter(
-      (workerId) => workerId !== id
+      (workerId) => workerId !== id,
     );
 
     await mainPrisma.model.update({
@@ -504,7 +504,7 @@ export async function deleteWorker(id: string): Promise<void> {
 }
 
 export async function addTransaction(
-  data: IFormEarning
+  data: IFormEarning,
 ): Promise<Itransaction> {
   try {
     const newTransaction = await mainPrisma.earning.create({
@@ -575,7 +575,7 @@ export const createLead = async ({
 
 export async function editLead(
   id: string,
-  updatedData: IFormLead
+  updatedData: IFormLead,
 ): Promise<IFormLead> {
   try {
     const LeadToEdit = await mainPrisma.lead.findUnique({
@@ -600,7 +600,7 @@ export async function editLead(
 
 export async function editTransaction(
   id: string,
-  updatedData: IFormEarning
+  updatedData: IFormEarning,
 ): Promise<Itransaction> {
   try {
     const transactionToEdit = await mainPrisma.earning.findUnique({
@@ -758,7 +758,7 @@ export async function calculatePaymentsForAllWorkers(): Promise<
 
 export async function editTodo(
   id: string,
-  updatedData: IFormTodo
+  updatedData: IFormTodo,
 ): Promise<IFormTodo> {
   try {
     const TodoToEdit = await mainPrisma.todo.findUnique({
@@ -854,7 +854,7 @@ export async function syncPercentagesWithWorkers(defaultPercentage = 40) {
   const currentWorkerIds = new Set(allWorkers.map((w) => w.id));
 
   const missing = allWorkers.filter(
-    (worker) => !existingWorkerIds.has(worker.id)
+    (worker) => !existingWorkerIds.has(worker.id),
   );
   for (const worker of missing) {
     await mainPrisma.percentages.create({
